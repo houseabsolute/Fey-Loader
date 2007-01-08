@@ -19,7 +19,7 @@ BEGIN
         *DBD::mysql::db::primary_key_info = \&_primary_key_info;
     }
 
-    if ( DBD::mysql->VERSION <= 4 )
+    if ( DBD::mysql->VERSION <= 4.001 )
     {
         no warnings 'redefine';
         no warnings 'prototype';
