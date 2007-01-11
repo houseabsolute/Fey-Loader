@@ -1,11 +1,11 @@
-package Q::Loader::Pg;
+package Fey::Loader::Pg;
 
 use strict;
 use warnings;
 
-use base 'Q::Loader::DBI';
+use base 'Fey::Loader::DBI';
 
-use Q::Literal;
+use Fey::Literal;
 
 use Scalar::Util qw( looks_like_number );
 
@@ -55,7 +55,7 @@ sub _default
 
     if ( $default =~ /^NULL$/i )
     {
-        return Q::Literal->null();
+        return Fey::Literal->null();
     }
     elsif ( looks_like_number($default) )
     {
@@ -64,11 +64,11 @@ sub _default
     # string defaults come back like 'Foo'::character varying
     elsif ( $default =~ s/^\'(.+)\'::[^:]+$/$1/ )
     {
-        return Q::Literal->new_from_scalar($default);
+        return Fey::Literal->new_from_scalar($default);
     }
     elsif ( $default =~ /\(.*\)/ )
     {
-        return Q::Literal->term($default);
+        return Fey::Literal->term($default);
     }
 }
 

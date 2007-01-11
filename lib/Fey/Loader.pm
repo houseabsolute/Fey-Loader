@@ -1,4 +1,4 @@
-package Q::Loader;
+package Fey::Loader;
 
 use strict;
 use warnings;
@@ -7,9 +7,9 @@ use vars qw($VERSION);
 
 $VERSION = 0.01;
 
-use Q::Validate qw( validate DBI_TYPE );
+use Fey::Validate qw( validate DBI_TYPE );
 
-use Q::Loader::DBI;
+use Fey::Loader::DBI;
 
 
 {

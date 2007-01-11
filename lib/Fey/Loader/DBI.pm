@@ -1,19 +1,19 @@
-package Q::Loader::DBI;
+package Fey::Loader::DBI;
 
 use strict;
 use warnings;
 
-use base 'Q::Accessor';
+use base 'Fey::Accessor';
 __PACKAGE__->mk_ro_accessors
     ( qw( dbh quoter ) );
 
-use Q::Validate qw( validate SCALAR_TYPE DBI_TYPE );
+use Fey::Validate qw( validate SCALAR_TYPE DBI_TYPE );
 
-use Q::Column;
-use Q::FK;
-use Q::Schema;
-use Q::Table;
-use Q::Quoter;
+use Fey::Column;
+use Fey::FK;
+use Fey::Schema;
+use Fey::Table;
+use Fey::Quoter;
 
 use Scalar::Util qw( looks_like_number );
 
@@ -38,9 +38,9 @@ use Scalar::Util qw( looks_like_number );
 
         my $name = delete $p{name} || $self->dbh()->{Name};
 
-        my $schema = Q::Schema->new( name => $name );
+        my $schema = Fey::Schema->new( name => $name );
 
-        $self->{quoter} = Q::Quoter->new( dbh => $self->dbh() );
+        $self->{quoter} = Fey::Quoter->new( dbh => $self->dbh() );
 
         $self->_add_tables($schema);
         $self->_add_foreign_keys($schema);
@@ -80,7 +80,7 @@ sub _add_table
     my $name = $self->quoter()->unquote_identifier( $table_info->{TABLE_NAME} );
 
     my $table =
-        Q::Table->new
+        Fey::Table->new
             ( name    => $name,
               is_view => $self->_is_view($table_info),
             );
@@ -104,7 +104,7 @@ sub _add_columns
     {
         my %col = $self->_column_params( $table, $col_info );
 
-        my $col = Q::Column->new(%col);
+        my $col = Fey::Column->new(%col);
 
         $table->add_column($col);
     }
@@ -149,7 +149,7 @@ sub _default
 
     if ( $default =~ /^NULL$/i )
     {
-        return Q::Literal->null();
+        return Fey::Literal->null();
     }
     elsif ( $default =~ /^(["'])(.*)\1$/ )
     {
@@ -161,7 +161,7 @@ sub _default
     }
     else
     {
-        return Q::Literal->term($default);
+        return Fey::Literal->term($default);
     }
 }
 
@@ -229,7 +229,7 @@ sub _add_foreign_keys
                 $fk_cols->{$k} = [ grep { defined } @{ $fk_cols->{$k} } ]
             }
 
-            my $fk = Q::FK->new( %{$fk_cols} );
+            my $fk = Fey::FK->new( %{$fk_cols} );
 
             $schema->add_foreign_key($fk);
         }

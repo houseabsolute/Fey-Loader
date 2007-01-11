@@ -3,23 +3,23 @@ use warnings;
 
 use lib 't/lib';
 
-use Q::Test;
-use Q::Test::Loader;
-use Q::Test::mysql;
+use Fey::Test;
+use Fey::Test::Loader;
+use Fey::Test::mysql;
 
 use Test::More tests => 119;
 
-use Q::Literal;
-use Q::Loader;
+use Fey::Literal;
+use Fey::Loader;
 
 
 {
-    my $loader = Q::Loader->new( dbh => Q::Test::SQLite->dbh() );
+    my $loader = Fey::Loader->new( dbh => Fey::Test::SQLite->dbh() );
 
     my $schema1 = $loader->make_schema( name => 'Test' );
-    my $schema2 = Q::Test->mock_test_schema_with_fks();
+    my $schema2 = Fey::Test->mock_test_schema_with_fks();
 
-    Q::Test::Loader->compare_schemas
+    Fey::Test::Loader->compare_schemas
         ( $schema1, $schema2,
           { 'Message.message_id' =>
                 { type   => 'INT',
@@ -31,14 +31,14 @@ use Q::Loader;
                 },
             'Message.quality' =>
                 { type    => 'DECIMAL',
-                  default => Q::Literal->term('2.30'),
+                  default => Fey::Literal->term('2.30'),
                 },
             'Message.message_date' =>
                 { type         => 'TIMESTAMP',
                   length       => 14,
                   precision    => 0, # gah, mysql is so weird
                   generic_type => 'datetime',
-                  default      => Q::Literal->term('CURRENT_TIMESTAMP'),
+                  default      => Fey::Literal->term('CURRENT_TIMESTAMP'),
                   # mysql seems to always consider timestamp columns nullable
                   is_nullable  => 1,
                 },
@@ -48,7 +48,7 @@ use Q::Loader;
                 },
             'User.username' =>
                 { type    => 'TEXT',
-                  default => Q::Literal->string(''),
+                  default => Fey::Literal->string(''),
                 },
             'User.email' =>
                 { type   => 'TEXT',
@@ -67,7 +67,7 @@ use Q::Loader;
                 },
             'Group.name' =>
                 { type    => 'TEXT',
-                  default => Q::Literal->string(''),
+                  default => Fey::Literal->string(''),
                 },
             # DBD::mysql does not support foreign_key_info(), and
             # there's no good way of getting this from mysql
@@ -80,6 +80,6 @@ use Q::Loader;
 }
 
 {
-    my $def = Q::Loader::mysql->_default('NULL');
-    isa_ok( $def, 'Q::Literal::Null');
+    my $def = Fey::Loader::mysql->_default('NULL');
+    isa_ok( $def, 'Fey::Literal::Null');
 }

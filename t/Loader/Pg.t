@@ -3,25 +3,25 @@ use warnings;
 
 use lib 't/lib';
 
-use Q::Test;
-use Q::Test::Loader;
-use Q::Test::Pg;
+use Fey::Test;
+use Fey::Test::Loader;
+use Fey::Test::Pg;
 
 use Test::More tests => 127;
 
-use Q::Loader;
+use Fey::Loader;
 
 
 {
-    my $loader = Q::Loader->new( dbh => Q::Test::SQLite->dbh() );
+    my $loader = Fey::Loader->new( dbh => Fey::Test::SQLite->dbh() );
 
     my $schema1 = $loader->make_schema( name => 'Test' );
-    my $schema2 = Q::Test->mock_test_schema_with_fks();
+    my $schema2 = Fey::Test->mock_test_schema_with_fks();
 
-    Q::Test::Loader->compare_schemas
+    Fey::Test::Loader->compare_schemas
         ( $schema1, $schema2,
           { 'Message.message_date' =>
-                { default => Q::Literal->function('now'),
+                { default => Fey::Literal->function('now'),
                 },
             'Message.quality' =>
                 { type => 'numeric',
@@ -35,6 +35,6 @@ use Q::Loader;
 }
 
 {
-    my $def = Q::Loader::Pg->_default('NULL');
-    isa_ok( $def, 'Q::Literal::Null');
+    my $def = Fey::Loader::Pg->_default('NULL');
+    isa_ok( $def, 'Fey::Literal::Null');
 }

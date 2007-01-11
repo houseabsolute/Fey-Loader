@@ -1,4 +1,4 @@
-package Q::Test::SQLite;
+package Fey::Test::SQLite;
 
 use strict;
 use warnings;

@@ -1,13 +1,13 @@
-package Q::Loader::mysql;
+package Fey::Loader::mysql;
 
 use strict;
 use warnings;
 
-use base 'Q::Loader::DBI';
+use base 'Fey::Loader::DBI';
 
 use DBD::mysql;
 
-use Q::Literal;
+use Fey::Literal;
 
 
 package DBD::mysql::Fixup;
@@ -260,7 +260,7 @@ sub _primary_key_info {
     return $sth;
 }
 
-package Q::Loader::mysql;
+package Fey::Loader::mysql;
 
 sub _column_params
 {
@@ -314,11 +314,11 @@ sub _default
 
     if ( $default =~ /^NULL$/i )
     {
-        return Q::Literal->null();
+        return Fey::Literal->null();
     }
     elsif ( $default =~ /^CURRENT_TIMESTAMP$/i )
     {
-        return Q::Literal->term($default);
+        return Fey::Literal->term($default);
     }
     else
     {

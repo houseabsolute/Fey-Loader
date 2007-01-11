@@ -3,22 +3,22 @@ use warnings;
 
 use lib 't/lib';
 
-use Q::Test;
-use Q::Test::Loader;
-use Q::Test::SQLite;
+use Fey::Test;
+use Fey::Test::Loader;
+use Fey::Test::SQLite;
 
 use Test::More tests => 124;
 
-use Q::Loader;
+use Fey::Loader;
 
 
 {
-    my $loader = Q::Loader->new( dbh => Q::Test::SQLite->dbh() );
+    my $loader = Fey::Loader->new( dbh => Fey::Test::SQLite->dbh() );
 
     my $schema1 = $loader->make_schema( name => 'Test' );
-    my $schema2 = Q::Test->mock_test_schema_with_fks();
+    my $schema2 = Fey::Test->mock_test_schema_with_fks();
 
-    Q::Test::Loader->compare_schemas
+    Fey::Test::Loader->compare_schemas
         ( $schema1, $schema2,
           { 'Message.quality'      => { type => 'real' },
             # SQLite crack-headedly returns the actual current date as
@@ -31,20 +31,20 @@ use Q::Loader;
 }
 
 {
-    my $def = Q::Loader::SQLite->_default('NULL');
-    isa_ok( $def, 'Q::Literal::Null');
+    my $def = Fey::Loader::SQLite->_default('NULL');
+    isa_ok( $def, 'Fey::Literal::Null');
 
-    is( Q::Loader::SQLite->_default('foo'), 'foo',
+    is( Fey::Loader::SQLite->_default('foo'), 'foo',
         q{foo as default becomes string foo} );
 
-    is( Q::Loader::SQLite->_default(42), 42,
+    is( Fey::Loader::SQLite->_default(42), 42,
         '42 as default becomes 42' );
 
-    is( Q::Loader::SQLite->_default(42.42), 42.42,
+    is( Fey::Loader::SQLite->_default(42.42), 42.42,
         '42.42 as default becomes 42.42' );
 
-    $def = Q::Loader::SQLite->_default('CURRENT_TIME');
-    isa_ok( $def, 'Q::Literal::Term' );
+    $def = Fey::Loader::SQLite->_default('CURRENT_TIME');
+    isa_ok( $def, 'Fey::Literal::Term' );
     is( $def->sql, 'CURRENT_TIME',
         'unquoted CURRENT_TIME as default becomes CURRENT_TIME as term' );
 }

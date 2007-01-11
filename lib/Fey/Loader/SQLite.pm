@@ -1,13 +1,13 @@
-package Q::Loader::SQLite;
+package Fey::Loader::SQLite;
 
 use strict;
 use warnings;
 
-use base 'Q::Loader::DBI';
+use base 'Fey::Loader::DBI';
 
 use DBD::SQLite;
 
-use Q::Validate qw( validate SCALAR_TYPE );
+use Fey::Validate qw( validate SCALAR_TYPE );
 
 
 package DBD::SQLite::Fixup;
@@ -84,7 +84,7 @@ sub _sqlite_column_info {
 }
 
 
-package Q::Loader::SQLite;
+package Fey::Loader::SQLite;
 
 sub _add_table
 {
@@ -150,11 +150,11 @@ sub _default
 
     if ( $default =~ /^NULL$/i )
     {
-        return Q::Literal->null();
+        return Fey::Literal->null();
     }
     elsif ( $default =~ /CURRENT_(?:TIME(?:STAMP)?|DATE)/ )
     {
-        return Q::Literal->term($default);
+        return Fey::Literal->term($default);
     }
     else
     {
