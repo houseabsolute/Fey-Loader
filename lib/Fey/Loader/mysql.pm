@@ -19,6 +19,11 @@ BEGIN
         *DBD::mysql::db::primary_key_info = \&_primary_key_info;
     }
 
+    unless ( defined &DBD::mysql::db::foreign_key_info )
+    {
+        *DBD::mysql::db::foreign_key_info = \&_foreign_key_info;
+    }
+
     if ( DBD::mysql->VERSION <= 4.001 )
     {
         no warnings 'redefine';
@@ -72,11 +77,18 @@ BEGIN
     sub _has_views {
         my $dbh = shift;
 
-        my ($maj, $min, $point) =
-            $dbh->get_info($DBI::Const::GetInfoType::GetInfoType{SQL_DBMS_VER}) =~ /(\d+)\.(\d+)\.(\d+)/;
+        my ($maj, $min, $point) = _version($dbh);
 
         return 1 if $maj >= 5 && $point >= 1;
     }
+}
+
+sub _version {
+    my $dbh = shift;
+
+    return
+        $dbh->get_info($DBI::Const::GetInfoType::GetInfoType{SQL_DBMS_VER})
+            =~ /(\d+)\.(\d+)\.(\d+)/;
 }
 
 sub _new_column_info {
@@ -260,6 +272,86 @@ sub _primary_key_info {
     return $sth;
 }
 
+sub _foreign_key_info {
+    my ($dbh,
+        $pk_catalog, $pk_schema, $pk_table,
+        undef, $fk_schema, $fk_table,
+       ) = @_;
+
+    local $dbh->{FetchHashKeyName} = 'NAME_lc';
+
+    my ($maj, $min, $point) = _version($dbh);
+
+    return unless $maj >= 5 && $point >= 6;
+
+    my @names = qw(
+	UK_TABLE_CAT UK_TABLE_SCHEM UK_TABLE_NAME UK_COLUMN_NAME
+	FK_TABLE_CAT FK_TABLE_SCHEM FK_TABLE_NAME FK_COLUMN_NAME
+        ORDINAL_POSITION DELETE_RULE FK_NAME UK_NAME DEFERABILITY
+        UNIQUE_OR_PRIMARY
+    );
+
+    my $sql = <<'EOF';
+SELECT TABLE_CATALOG AS UK_TABLE_CAT,
+       TABLE_SCHEMA AS UK_TABLE_SCHEM,
+       TABLE_NAME AS UK_TABLE_NAME,
+       COLUMN_NAME AS UK_COLUMN_NAME,
+       NULL AS FK_TABLE_CAT,
+       REFERENCED_TABLE_SCHEMA AS FK_TABLE_SCHEM,
+       REFERENCED_TABLE_NAME AS FK_TABLE_NAME,
+       REFERENCED_COLUMN_NAME AS FK_COLUMN_NAME,
+       ORDINAL_POSITION,
+       NULL AS DELETE_RULE,
+       CONSTRAINT_NAME AS FK_NAME,
+       NULL AS UK_NAME,
+       NULL AS DEFERABILITY,
+       NULL AS UNIQUE_OR_PRIMARY
+  FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+ WHERE REFERENCED_TABLE_NAME IS NOT NULL
+EOF
+
+    my @where;
+    my @bind;
+
+    if ( defined $pk_catalog ) {
+        push @where, 'TABLE_CATALOG LIKE ?';
+        push @bind, $pk_catalog;
+    }
+
+    if ( defined $pk_schema ) {
+        push @where, 'TABLE_SCHEMA LIKE ?';
+        push @bind, $pk_schema;
+    }
+
+    if ( defined $pk_table ) {
+        push @where, 'TABLE_NAME LIKE ?';
+        push @bind, $pk_table;
+    }
+
+    if ( defined $fk_schema ) {
+        push @where, 'REFERENCED_TABLE_SCHEMA LIKE ?';
+        push @bind,  $fk_schema;
+    }
+
+    if ( defined $fk_table ) {
+        push @where, 'REFERENCED_TABLE_NAME LIKE ?';
+        push @bind,  $fk_table;
+    }
+
+    if (@where) {
+        $sql .= ' AND ';
+        $sql .= join ' AND ', @where;
+    }
+
+    local $dbh->{FetchHashKeyName} = 'NAME_uc';
+    my $sth = $dbh->prepare($sql);
+    $sth->execute(@bind);
+
+    return $sth;
+}
+
+
+
 package Fey::Loader::mysql;
 
 sub _column_params
@@ -273,10 +365,10 @@ sub _column_params
     # DBD::mysql adds the max length for some data types to the column
     # info, but we only care about user-specified lengths.
     #
-    # Unfortunately, MySQL itself adds a length to some types (notable
-    # integer types) that isn't really useful, but it's impossible
-    # (AFAIK) to distinguish between a length specified by the user
-    # and one specified by the DBMS.
+    # Unfortunately, DBD::mysql itself adds a length to some types
+    # (notably integer types) that isn't really useful, but it's
+    # impossible to distinguish between a length specified by the user
+    # and one specified by DBD::mysql.
     delete $col{length}
         if (    $col{type} =~ /(?:text|blob)$/i
              || $col{type} =~ /^(?:float|double)/i
@@ -324,6 +416,18 @@ sub _default
     {
         return $default;
     }
+}
+
+sub _fk_info_sth
+{
+    my $self = shift;
+    my $name = shift;
+
+    return
+        $self->dbh()->foreign_key_info
+            ( undef, $self->dbh()->{Name}, $name,
+              undef, undef, undef,
+            );
 }
 
 

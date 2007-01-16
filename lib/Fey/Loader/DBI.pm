@@ -192,11 +192,7 @@ sub _add_foreign_keys
 
     for my $table ( $schema->tables() )
     {
-        my $sth =
-            $self->dbh()->foreign_key_info
-                ( undef, undef, $table->name(),
-                  undef, undef, undef,
-                );
+        my $sth = $self->_fk_info_sth( $table->name() );
 
         next unless $sth;
 
@@ -205,7 +201,8 @@ sub _add_foreign_keys
         {
             for my $k (@keys)
             {
-                $fk_info->{$k} = $self->quoter()->unquote_identifier( $fk_info->{$k} );
+                $fk_info->{$k} = $self->quoter()->unquote_identifier( $fk_info->{$k} )
+                    if defined $fk_info->{$k};
             }
 
             my $key = $fk_info->{FK_NAME};
@@ -229,11 +226,31 @@ sub _add_foreign_keys
                 $fk_cols->{$k} = [ grep { defined } @{ $fk_cols->{$k} } ]
             }
 
+            if ( $self->_reverse_fk_definition() )
+            {
+                @{ $fk_cols }{ 'source', 'target' } =
+                    @{ $fk_cols }{ 'target', 'source' };
+            }
+
             my $fk = Fey::FK->new( %{$fk_cols} );
 
             $schema->add_foreign_key($fk);
         }
     }
+}
+
+sub _reverse_fk_definition { 0 }
+
+sub _fk_info_sth
+{
+    my $self = shift;
+    my $name = shift;
+
+    return
+        $self->dbh()->foreign_key_info
+            ( undef, undef, $name,
+              undef, undef, undef,
+            );
 }
 
 

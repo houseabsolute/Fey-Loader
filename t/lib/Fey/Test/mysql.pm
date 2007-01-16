@@ -1,4 +1,4 @@
-package Fey::Test::SQLite;
+package Fey::Test::mysql;
 
 use strict;
 use warnings;

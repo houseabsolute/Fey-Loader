@@ -72,5 +72,7 @@ sub _default
     }
 }
 
+sub _reverse_fk_definition { 1 }
+
 
 1;
