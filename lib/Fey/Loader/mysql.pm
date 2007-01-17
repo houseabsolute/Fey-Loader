@@ -406,11 +406,11 @@ sub _default
 
     if ( $default =~ /^NULL$/i )
     {
-        return Fey::Literal->null();
+        return Fey::Literal::Null->new();
     }
     elsif ( $default =~ /^CURRENT_TIMESTAMP$/i )
     {
-        return Fey::Literal->term($default);
+        return Fey::Literal::Term->new($default);
     }
     else
     {

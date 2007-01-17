@@ -31,14 +31,14 @@ use Fey::Loader;
                 },
             'Message.quality' =>
                 { type    => 'DECIMAL',
-                  default => Fey::Literal->term('2.30'),
+                  default => Fey::Literal::Term->new('2.30'),
                 },
             'Message.message_date' =>
                 { type         => 'TIMESTAMP',
                   length       => 14,
                   precision    => 0, # gah, mysql is so weird
                   generic_type => 'datetime',
-                  default      => Fey::Literal->term('CURRENT_TIMESTAMP'),
+                  default      => Fey::Literal::Term->new('CURRENT_TIMESTAMP'),
                   # mysql seems to always consider timestamp columns nullable
                   is_nullable  => 1,
                 },
@@ -48,7 +48,7 @@ use Fey::Loader;
                 },
             'User.username' =>
                 { type    => 'TEXT',
-                  default => Fey::Literal->string(''),
+                  default => Fey::Literal::String->new(''),
                 },
             'User.email' =>
                 { type   => 'TEXT',
@@ -67,7 +67,7 @@ use Fey::Loader;
                 },
             'Group.name' =>
                 { type    => 'TEXT',
-                  default => Fey::Literal->string(''),
+                  default => Fey::Literal::String->new(''),
                 },
           },
         );

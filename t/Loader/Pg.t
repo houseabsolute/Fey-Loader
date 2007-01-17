@@ -21,7 +21,7 @@ use Fey::Loader;
     Fey::Test::Loader->compare_schemas
         ( $schema1, $schema2,
           { 'Message.message_date' =>
-                { default => Fey::Literal->function('now'),
+                { default => Fey::Literal::Function->new('now'),
                 },
             'Message.quality' =>
                 { type => 'numeric',

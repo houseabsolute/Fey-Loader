@@ -55,7 +55,7 @@ sub _default
 
     if ( $default =~ /^NULL$/i )
     {
-        return Fey::Literal->null();
+        return Fey::Literal::Null->new();
     }
     elsif ( looks_like_number($default) )
     {
@@ -68,7 +68,7 @@ sub _default
     }
     elsif ( $default =~ /\(.*\)/ )
     {
-        return Fey::Literal->term($default);
+        return Fey::Literal::Term->new($default);
     }
 }
 
