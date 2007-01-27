@@ -5,7 +5,7 @@ use warnings;
 
 use base 'Class::Accessor::Fast';
 __PACKAGE__->mk_ro_accessors
-    ( qw( dbh quoter ) );
+    ( qw( dbh ) );
 
 use Fey::Validate qw( validate SCALAR_TYPE DBI_TYPE );
 
@@ -13,7 +13,6 @@ use Fey::Column;
 use Fey::FK;
 use Fey::Schema;
 use Fey::Table;
-use Fey::Quoter;
 
 use Scalar::Util qw( looks_like_number );
 
@@ -40,12 +39,8 @@ use Scalar::Util qw( looks_like_number );
 
         my $schema = Fey::Schema->new( name => $name );
 
-        $self->{quoter} = Fey::Quoter->new( dbh => $self->dbh() );
-
         $self->_add_tables($schema);
         $self->_add_foreign_keys($schema);
-
-        $schema->set_dbh( $self->dbh() );
 
         return $schema;
     }
@@ -71,13 +66,26 @@ sub _catalog_name { undef }
 
 sub _schema_name { undef }
 
+sub unquote_identifier
+{
+    my $self  = shift;
+    my $ident = shift;
+
+    my $quote = $self->dbh()->get_info(29) || q{"};
+
+    $ident =~ s/^\Q$quote\E|\Q$quote\E$//g;
+    $ident =~ s/\Q$quote$quote\E/$quote/g;
+
+    return $ident;
+}
+
 sub _add_table
 {
     my $self       = shift;
     my $schema     = shift;
     my $table_info = shift;
 
-    my $name = $self->quoter()->unquote_identifier( $table_info->{TABLE_NAME} );
+    my $name = $self->unquote_identifier( $table_info->{TABLE_NAME} );
 
     my $table =
         Fey::Table->new
@@ -116,7 +124,7 @@ sub _column_params
     my $table    = shift;
     my $col_info = shift;
 
-    my $name = $self->quoter()->unquote_identifier( $col_info->{COLUMN_NAME} );
+    my $name = $self->unquote_identifier( $col_info->{COLUMN_NAME} );
 
     my %col = ( name         => $name,
                 type         => $col_info->{TYPE_NAME},
@@ -176,7 +184,7 @@ sub _set_primary_key
     my $table = shift;
 
     my @pk =
-        ( map { $self->quoter()->unquote_identifier($_) }
+        ( map { $self->unquote_identifier($_) }
           $self->dbh()->primary_key( undef, undef, $table->name() )
         );
 
@@ -201,7 +209,7 @@ sub _add_foreign_keys
         {
             for my $k (@keys)
             {
-                $fk_info->{$k} = $self->quoter()->unquote_identifier( $fk_info->{$k} )
+                $fk_info->{$k} = $self->unquote_identifier( $fk_info->{$k} )
                     if defined $fk_info->{$k};
             }
 
