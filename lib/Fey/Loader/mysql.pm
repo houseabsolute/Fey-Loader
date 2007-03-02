@@ -14,23 +14,21 @@ package DBD::mysql::Fixup;
 
 BEGIN
 {
-    unless ( defined &DBD::mysql::db::primary_key_info )
-    {
-        *DBD::mysql::db::primary_key_info = \&_primary_key_info;
-    }
-
     unless ( defined &DBD::mysql::db::foreign_key_info )
     {
         *DBD::mysql::db::foreign_key_info = \&_foreign_key_info;
     }
 
-    if ( DBD::mysql->VERSION <= 4.001 )
+    if ( DBD::mysql->VERSION <= 4.002 )
     {
         no warnings 'redefine';
         no warnings 'prototype';
         *DBD::mysql::db::table_info = \&_new_table_info;
         *DBD::mysql::db::_has_views = \&_has_views;
         *DBD::mysql::db::column_info = \&_new_column_info;
+        # This was implemented in 4.001 but it has a bug where the
+        # ordinal position of the keys is not reported correctly.
+        *DBD::mysql::db::primary_key_info = \&_primary_key_info;
 
         DBI->import(':sql_types');
 
@@ -284,57 +282,48 @@ sub _foreign_key_info {
 
     return unless $maj >= 5 && $point >= 6;
 
-    my @names = qw(
-	UK_TABLE_CAT UK_TABLE_SCHEM UK_TABLE_NAME UK_COLUMN_NAME
-	FK_TABLE_CAT FK_TABLE_SCHEM FK_TABLE_NAME FK_COLUMN_NAME
-        ORDINAL_POSITION DELETE_RULE FK_NAME UK_NAME DEFERABILITY
-        UNIQUE_OR_PRIMARY
-    );
-
     my $sql = <<'EOF';
-SELECT TABLE_CATALOG AS UK_TABLE_CAT,
-       TABLE_SCHEMA AS UK_TABLE_SCHEM,
-       TABLE_NAME AS UK_TABLE_NAME,
-       COLUMN_NAME AS UK_COLUMN_NAME,
-       NULL AS FK_TABLE_CAT,
-       REFERENCED_TABLE_SCHEMA AS FK_TABLE_SCHEM,
-       REFERENCED_TABLE_NAME AS FK_TABLE_NAME,
-       REFERENCED_COLUMN_NAME AS FK_COLUMN_NAME,
-       ORDINAL_POSITION,
+SELECT NULL AS PKTABLE_CAT,
+       A.REFERENCED_TABLE_SCHEMA AS PKTABLE_SCHEM,
+       A.REFERENCED_TABLE_NAME AS PKTABLE_NAME,
+       A.REFERENCED_COLUMN_NAME AS PKCOLUMN_NAME,
+       A.TABLE_CATALOG AS FKTABLE_CAT,
+       A.TABLE_SCHEMA AS FKTABLE_SCHEM,
+       A.TABLE_NAME AS FKTABLE_NAME,
+       A.COLUMN_NAME AS FKCOLUMN_NAME,
+       A.ORDINAL_POSITION AS KEY_SEQ,
+       NULL AS UPDATE_RULE,
        NULL AS DELETE_RULE,
-       CONSTRAINT_NAME AS FK_NAME,
-       NULL AS UK_NAME,
+       A.CONSTRAINT_NAME AS FK_NAME,
+       NULL AS PK_NAME,
        NULL AS DEFERABILITY,
        NULL AS UNIQUE_OR_PRIMARY
-  FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
- WHERE REFERENCED_TABLE_NAME IS NOT NULL
+  FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE A,
+       INFORMATION_SCHEMA.TABLE_CONSTRAINTS B
+ WHERE A.TABLE_SCHEMA = B.TABLE_SCHEMA AND A.TABLE_NAME = B.TABLE_NAME
+   AND A.CONSTRAINT_NAME = B.CONSTRAINT_NAME AND B.CONSTRAINT_TYPE IS NOT NULL
 EOF
 
     my @where;
     my @bind;
 
-    if ( defined $pk_catalog ) {
-        push @where, 'TABLE_CATALOG LIKE ?';
-        push @bind, $pk_catalog;
-    }
-
     if ( defined $pk_schema ) {
-        push @where, 'TABLE_SCHEMA LIKE ?';
+        push @where, 'A.TABLE_SCHEMA LIKE ?';
         push @bind, $pk_schema;
     }
 
     if ( defined $pk_table ) {
-        push @where, 'TABLE_NAME LIKE ?';
+        push @where, 'A.TABLE_NAME LIKE ?';
         push @bind, $pk_table;
     }
 
     if ( defined $fk_schema ) {
-        push @where, 'REFERENCED_TABLE_SCHEMA LIKE ?';
+        push @where, 'B.REFERENCED_TABLE_SCHEMA LIKE ?';
         push @bind,  $fk_schema;
     }
 
     if ( defined $fk_table ) {
-        push @where, 'REFERENCED_TABLE_NAME LIKE ?';
+        push @where, 'B.REFERENCED_TABLE_NAME LIKE ?';
         push @bind,  $fk_table;
     }
 

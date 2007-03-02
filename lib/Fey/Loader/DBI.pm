@@ -183,10 +183,16 @@ sub _set_primary_key
     my $self  = shift;
     my $table = shift;
 
-    my @pk =
-        ( map { $self->unquote_identifier($_) }
-          $self->dbh()->primary_key( undef, undef, $table->name() )
-        );
+    my $pk_info = $self->dbh()->primary_key_info( undef, undef, $table->name() );
+
+    return unless $pk_info;
+
+    my @pk;
+    while ( my $pk_col = $pk_info->fetchrow_hashref() )
+    {
+        $pk[ $pk_col->{KEY_SEQ} - 1 ] =
+            $self->unquote_identifier( $pk_col->{COLUMN_NAME} );
+    }
 
     $table->set_primary_key(@pk);
 }
@@ -207,6 +213,8 @@ sub _add_foreign_keys
         my %fk;
         while ( my $fk_info = $sth->fetchrow_hashref() )
         {
+            $self->_translate_fk_info($fk_info);
+
             for my $k (@keys)
             {
                 $fk_info->{$k} = $self->unquote_identifier( $fk_info->{$k} )
@@ -216,12 +224,12 @@ sub _add_foreign_keys
             my $key = $fk_info->{FK_NAME};
 
             $fk{$key}{source}[ $fk_info->{ORDINAL_POSITION} - 1 ] =
-                $schema->table( $fk_info->{UK_TABLE_NAME} )
-                        ->column( $fk_info->{UK_COLUMN_NAME} );
-
-            $fk{$key}{target}[ $fk_info->{ORDINAL_POSITION} - 1 ] =
                 $schema->table( $fk_info->{FK_TABLE_NAME} )
                        ->column( $fk_info->{FK_COLUMN_NAME} );
+
+            $fk{$key}{target}[ $fk_info->{ORDINAL_POSITION} - 1 ] =
+                $schema->table( $fk_info->{UK_TABLE_NAME} )
+                        ->column( $fk_info->{UK_COLUMN_NAME} );
         }
 
         for my $fk_cols ( values %fk )
@@ -234,12 +242,6 @@ sub _add_foreign_keys
                 $fk_cols->{$k} = [ grep { defined } @{ $fk_cols->{$k} } ]
             }
 
-            if ( $self->_reverse_fk_definition() )
-            {
-                @{ $fk_cols }{ 'source', 'target' } =
-                    @{ $fk_cols }{ 'target', 'source' };
-            }
-
             my $fk = Fey::FK->new( %{$fk_cols} );
 
             $schema->add_foreign_key($fk);
@@ -247,7 +249,27 @@ sub _add_foreign_keys
     }
 }
 
-sub _reverse_fk_definition { 0 }
+{
+    my %ODBCToSQL =
+        ( PKTABLE_NAME  => 'UK_TABLE_NAME',
+          PKCOLUMN_NAME => 'UK_COLUMN_NAME',
+          FKTABLE_NAME  => 'FK_TABLE_NAME',
+          FKCOLUMN_NAME => 'FK_COLUMN_NAME',
+          KEY_SEQ       => 'ORDINAL_POSITION',
+        );
+    sub _translate_fk_info
+    {
+        my $self = shift;
+        my $info = shift;
+
+        return if $info->{UK_TABLE_NAME};
+
+        while ( my ( $from, $to ) = each %ODBCToSQL )
+        {
+            $info->{$to} = delete $info->{$from};
+        }
+    }
+}
 
 sub _fk_info_sth
 {
