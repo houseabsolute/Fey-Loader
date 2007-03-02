@@ -19,13 +19,19 @@ BEGIN
         *DBD::mysql::db::foreign_key_info = \&_foreign_key_info;
     }
 
-    if ( DBD::mysql->VERSION <= 4.002 )
+    if ( DBD::mysql->VERSION <= 4.001 )
     {
         no warnings 'redefine';
         no warnings 'prototype';
         *DBD::mysql::db::table_info = \&_new_table_info;
         *DBD::mysql::db::_has_views = \&_has_views;
         *DBD::mysql::db::column_info = \&_new_column_info;
+    }
+
+    if ( DBD::mysql->VERSION <= 4.003 )
+    {
+        no warnings 'redefine';
+        no warnings 'prototype';
         # This was implemented in 4.001 but it has a bug where the
         # ordinal position of the keys is not reported correctly.
         *DBD::mysql::db::primary_key_info = \&_primary_key_info;
