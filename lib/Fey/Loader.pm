@@ -3,34 +3,44 @@ package Fey::Loader;
 use strict;
 use warnings;
 
-use vars qw($VERSION);
+our $VERSION = 0.01;
 
-$VERSION = 0.01;
+use Moose::Policy 'Fey::Policy';
+use Moose;
 
-use Fey::Validate qw( validate DBI_TYPE );
+has 'dbh' =>
+    ( is       => 'ro',
+      isa      => 'DBI::db',
+      required => 1,
+    );
+
+no Moose;
+__PACKAGE__->meta()->make_immutable();
 
 use Fey::Loader::DBI;
 
 
+sub new
 {
-    my $spec = { dbh  => DBI_TYPE };
-    sub new
-    {
-        my $class = shift;
-        my %p     = validate( @_, $spec );
+    my $class = shift;
+    my %p     = @_;
 
-        my $driver = $p{dbh}{Driver}{Name};
+    my $self = $class->SUPER::new(%p);
 
-        my $subclass = $class->_determine_subclass($driver);
+    my $dbh = $self->dbh();
+    my $driver = $dbh->{Driver}{Name};
 
-        return $subclass->new(%p);
-    }
+    my $subclass = $self->_determine_subclass($driver);
+
+    return $subclass->new(%p);
 }
 
 sub _determine_subclass
 {
-    my $class = shift;
+    my $self = shift;
     my $driver = shift;
+
+    my $class = ref $self;
 
     my $subclass = $class . '::' . $driver;
 

@@ -3,11 +3,20 @@ package Fey::Loader::DBI;
 use strict;
 use warnings;
 
-use base 'Class::Accessor::Fast';
-__PACKAGE__->mk_ro_accessors
-    ( qw( dbh ) );
 
-use Fey::Validate qw( validate SCALAR_TYPE DBI_TYPE );
+use Moose::Policy 'Fey::Policy';
+use Moose;
+
+has 'dbh' =>
+    ( is       => 'ro',
+      isa      => 'DBI::db',
+      required => 1,
+    );
+
+no Moose;
+__PACKAGE__->meta()->make_immutable();
+
+use Fey::Validate qw( validate SCALAR_TYPE );
 
 use Fey::Column;
 use Fey::FK;
@@ -16,17 +25,6 @@ use Fey::Table;
 
 use Scalar::Util qw( looks_like_number );
 
-
-{
-    my $spec = { dbh  => DBI_TYPE };
-    sub new
-    {
-        my $class = shift;
-        my %p     = validate( @_, $spec );
-
-        return bless \%p, $class;
-    }
-}
 
 {
     my $spec = { name => SCALAR_TYPE( optional => 1 ) };
@@ -128,7 +126,7 @@ sub _column_params
 
     my %col = ( name         => $name,
                 type         => $col_info->{TYPE_NAME},
-                # NULLABLE could be 2, which indicate unknown
+                # NULLABLE could be 2, which indicates unknown
                 is_nullable  => ( $col_info->{NULLABLE} == 1 ? 1 : 0 ),
               );
 
@@ -223,11 +221,11 @@ sub _add_foreign_keys
 
             my $key = $fk_info->{FK_NAME};
 
-            $fk{$key}{source}[ $fk_info->{ORDINAL_POSITION} - 1 ] =
+            $fk{$key}{source_columns}[ $fk_info->{ORDINAL_POSITION} - 1 ] =
                 $schema->table( $fk_info->{FK_TABLE_NAME} )
                        ->column( $fk_info->{FK_COLUMN_NAME} );
 
-            $fk{$key}{target}[ $fk_info->{ORDINAL_POSITION} - 1 ] =
+            $fk{$key}{target_columns}[ $fk_info->{ORDINAL_POSITION} - 1 ] =
                 $schema->table( $fk_info->{UK_TABLE_NAME} )
                         ->column( $fk_info->{UK_COLUMN_NAME} );
         }
@@ -237,7 +235,7 @@ sub _add_foreign_keys
             # This is a gross workaround for what seems to be a bug in
             # DBD::Pg. The ORDINAL_POSITION is sequential across
             # different fks, so we end up with undef in the array.
-            for my $k ( qw( source target ) )
+            for my $k ( qw( source_columns target_columns ) )
             {
                 $fk_cols->{$k} = [ grep { defined } @{ $fk_cols->{$k} } ]
             }

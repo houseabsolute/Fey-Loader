@@ -39,8 +39,6 @@ use Fey::Loader;
                   precision    => 0, # gah, mysql is so weird
                   generic_type => 'datetime',
                   default      => Fey::Literal::Term->new('CURRENT_TIMESTAMP'),
-                  # mysql seems to always consider timestamp columns nullable
-                  is_nullable  => 1,
                 },
             'User.user_id' =>
                 { type   => 'INT',
