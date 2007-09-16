@@ -3,7 +3,6 @@ package Fey::Loader::DBI;
 use strict;
 use warnings;
 
-
 use Moose::Policy 'Fey::Policy';
 use Moose;
 

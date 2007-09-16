@@ -3,7 +3,13 @@ package Fey::Loader::SQLite;
 use strict;
 use warnings;
 
-use base 'Fey::Loader::DBI';
+use Moose::Policy 'Fey::Policy';
+use Moose;
+
+extends 'Fey::Loader::DBI';
+
+no Moose;
+__PACKAGE__->meta()->make_immutable();
 
 use DBD::SQLite;
 
