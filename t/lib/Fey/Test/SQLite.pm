@@ -28,7 +28,7 @@ use File::Temp ();
         return $DBH if $DBH;
 
         my $dir = File::Temp::tempdir( CLEANUP => 1 );
-        my $file = File::Spec->catfile( $dir, 'qtest.sqlite' );
+        my $file = File::Spec->catfile( $dir, 'test_fey.sqlite' );
 
         my $dbh =
             DBI->connect
@@ -64,7 +64,8 @@ EOF
           <<'EOF',
 CREATE TABLE "Group" (
     group_id   integer  not null  primary key autoincrement,
-    name       text     not null
+    name       text     not null,
+    UNIQUE (name)
 )
 EOF
           <<'EOF',

@@ -24,6 +24,11 @@ BEGIN
     {
         *DBD::SQLite::db::column_info = \&_sqlite_column_info;
     }
+
+    unless ( defined &DBD::SQLite::db::statistics_info )
+    {
+        *DBD::SQLite::db::statistics_info = \&_sqlite_statistics_info;
+    }
 }
 
 sub _sqlite_column_info {
@@ -83,6 +88,47 @@ sub _sqlite_column_info {
         or return $dbh->DBI::set_err($DBI::err, "DBI::Sponge: $DBI::errstr");
     my $sth = $sponge->prepare("column_info $table", {
         rows => [ map { [ @{$_}{@names} ] } @cols ],
+        NUM_OF_FIELDS => scalar @names,
+        NAME => \@names,
+    }) or return $dbh->DBI::set_err($sponge->err(), $sponge->errstr());
+    return $sth;
+}
+
+sub _sqlite_statistics_info {
+    my($dbh, $catalog, $schema, $table, $unique_only) = @_;
+
+    my @names = qw( TABLE_CAT TABLE_SCHEM TABLE_NAME NON_UNIQUE INDEX_QUALIFIER
+                    INDEX_NAME TYPE ORDINAL_POSITION COLUMN_NAME COLLATION
+                    CARDINALITY PAGES FILTER_CONDITION
+                 );
+
+    my $sth_indexes = $dbh->prepare( qq{PRAGMA index_list('$table')} );
+    $sth_indexes->execute;
+
+    my @indexes;
+    for my $index ( @{ $sth_indexes->fetchall_arrayref } ) {
+        next if $unique_only && ! $index->[2];
+
+        my $sth_index_info = $dbh->prepare( qq{PRAGMA index_info('$index->[1]')} );
+        $sth_index_info->execute;
+
+        for my $index_part ( @{ $sth_index_info->fetchall_arrayref } ) {
+            my %index;
+
+            $index{TABLE_NAME} = $table;
+            $index{NON_UNIQUE} = $index->[2] ? 0 : 1;
+            $index{INDEX_NAME} = $index->[1];
+            $index{ORDINAL_POSITION} = $index_part->[1] + 1;
+            $index{COLUMN_NAME} = $index_part->[2];
+
+            push @indexes, \%index;
+        }
+    }
+
+    my $sponge = DBI->connect("DBI:Sponge:", '','')
+        or return $dbh->DBI::set_err($DBI::err, "DBI::Sponge: $DBI::errstr");
+    my $sth = $sponge->prepare("statistics_info $table", {
+        rows => [ map { [ @{$_}{@names} ] } @indexes ],
         NUM_OF_FIELDS => scalar @names,
         NAME => \@names,
     }) or return $dbh->DBI::set_err($sponge->err(), $sponge->errstr());

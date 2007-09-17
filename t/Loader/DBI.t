@@ -6,7 +6,7 @@ use lib 't/lib';
 use Fey::Test;
 use Fey::Test::Loader;
 
-use Test::More tests => 133;
+use Test::More tests => 137;
 
 use Fey::Loader;
 

@@ -7,13 +7,13 @@ use Fey::Test;
 use Fey::Test::Loader;
 use Fey::Test::Pg;
 
-use Test::More tests => 127;
+use Test::More tests => 131;
 
 use Fey::Loader;
 
 
 {
-    my $loader = Fey::Loader->new( dbh => Fey::Test::SQLite->dbh() );
+    my $loader = Fey::Loader->new( dbh => Fey::Test::Pg->dbh() );
 
     my $schema1 = $loader->make_schema( name => 'Test' );
     my $schema2 = Fey::Test->mock_test_schema_with_fks();

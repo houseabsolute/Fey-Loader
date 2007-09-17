@@ -7,7 +7,7 @@ use Fey::Test;
 use Fey::Test::Loader;
 use Fey::Test::mysql;
 
-use Test::More tests => 127;
+use Test::More tests => 131;
 
 use Fey::Literal;
 use Fey::Loader;
@@ -64,7 +64,8 @@ use Fey::Loader;
                   length => 11,
                 },
             'Group.name' =>
-                { type    => 'TEXT',
+                { type    => 'VARCHAR',
+                  length  => 255,
                   default => Fey::Literal::String->new(''),
                 },
           },

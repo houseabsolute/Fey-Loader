@@ -15,6 +15,74 @@ use DBD::mysql 4.004;
 
 use Fey::Literal;
 
+package DBD::mysql::Fixup;
+
+BEGIN
+{
+    unless ( defined &DBD::mysql::db::statistics_info )
+    {
+        *DBD::mysql::db::statistics_info = \&_statistics_info;
+    }
+}
+
+sub _statistics_info {
+  my ($dbh, $catalog, $schema, $table, $unique_only) = @_;
+  $dbh->{mysql_server_prepare}||= 0;
+  my $mysql_server_prepare_save= $dbh->{mysql_server_prepare};
+
+  my $table_id = $dbh->quote_identifier($catalog, $schema, $table);
+
+  my @names = qw(
+      TABLE_CAT TABLE_SCHEM TABLE_NAME NON_UNIQUE INDEX_QUALIFIER
+      INDEX_NAME TYPE ORDINAL_POSITION COLUMN_NAME COLLATION
+      CARDINALITY PAGES FILTER_CONDITION
+      );
+  my %index_info;
+
+  local $dbh->{FetchHashKeyName} = 'NAME_lc';
+  my $desc_sth = $dbh->prepare("SHOW KEYS FROM $table_id");
+  my $desc= $dbh->selectall_arrayref($desc_sth, { Columns=>{} });
+  my $ordinal_pos = 0;
+
+  for my $row (grep { $_->{key_name} ne 'PRIMARY'} @$desc)
+  {
+    next if $unique_only && $row->{non_unique};
+
+    $index_info{ $row->{key_name} } = {
+      TABLE_CAT        => $catalog,
+      TABLE_SCHEM      => $schema,
+      TABLE_NAME       => $table,
+      NON_UNIQUE       => $row->{non_unique},
+      INDEX_NAME       => $row->{key_name},
+      TYPE             => lc $row->{index_type},
+      ORDINAL_POSITION => $row->{seq_in_index},
+      COLUMN_NAME      => $row->{column_name},
+      COLLATION        => $row->{collation},
+      CARDINALITY      => $row->{cardinality},
+      mysql_nullable   => ( $row->{nullable} ? 1 : 0 ),
+      mysql_comment    => $row->{comment},
+    };
+  }
+
+  my $sponge = DBI->connect("DBI:Sponge:", '','')
+    or 
+     ($dbh->{mysql_server_prepare}= $mysql_server_prepare_save &&
+      return $dbh->DBI::set_err($DBI::err, "DBI::Sponge: $DBI::errstr"));
+
+  my $sth= $sponge->prepare("statistics_info $table", {
+      rows          => [ map { [ @{$_}{@names} ] } values %index_info ],
+      NUM_OF_FIELDS => scalar @names,
+      NAME          => \@names,
+      }) or 
+       ($dbh->{mysql_server_prepare}= $mysql_server_prepare_save &&
+        return $dbh->DBI::set_err($sponge->err(), $sponge->errstr()));
+
+  $dbh->{mysql_server_prepare}= $mysql_server_prepare_save;
+
+  return $sth;
+}
+
+package Fey::Loader::mysql;
 
 sub _column_params
 {

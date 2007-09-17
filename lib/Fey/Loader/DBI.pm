@@ -92,6 +92,7 @@ sub _add_table
 
     $self->_add_columns($table);
     $self->_set_primary_key($table);
+    $self->_set_other_keys($table);
 
     $schema->add_table($table);
 }
@@ -191,7 +192,35 @@ sub _set_primary_key
             $self->unquote_identifier( $pk_col->{COLUMN_NAME} );
     }
 
-    $table->set_primary_key(@pk);
+    $table->add_candidate_key(@pk)
+        if @pk;
+}
+
+sub _set_other_keys
+{
+    my $self  = shift;
+    my $table = shift;
+
+    my $key_info = $self->dbh()->statistics_info( undef, $self->dbh()->{Name}, $table->name(),
+                                                  'unique only', 'quick' );
+
+    return unless $key_info;
+
+    my %ck;
+    while ( my $ck_col = $key_info->fetchrow_hashref() )
+    {
+        $ck{ $ck_col->{INDEX_NAME} } ||= [];
+
+        $ck{ $ck_col->{INDEX_NAME} }[ $ck_col->{ORDINAL_POSITION} - 1 ] =
+            $self->unquote_identifier( $ck_col->{COLUMN_NAME} );
+    }
+
+    for my $key ( values %ck )
+    {
+        # The defined check is another Pg workaround. ORDINAL_POSITION
+        # ends up sequential across all keys, which is wack.
+        $table->add_candidate_key( grep { defined } @{ $key } );
+    }
 }
 
 sub _add_foreign_keys

@@ -35,6 +35,7 @@ sub compare_schemas
             "schemas agree on is_view() for $name table" );
 
         $class->compare_pk( $table1, $table2, $override );
+        $class->compare_ck( $table1, $table2, $override );
         $class->compare_columns( $table1, $table2, $override );
         $class->compare_fks( $table1, $table2, $override );
     }
@@ -71,6 +72,36 @@ sub compare_pk
 
     is_deeply( \@pk1, $expect,
                "schemas agree on primary key for " . $table1->name() );
+}
+
+sub compare_ck
+{
+    my $class    = shift;
+    my $table1   = shift;
+    my $table2   = shift;
+    my $override = shift;
+
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    my @ck1;
+    for my $ck1 ( $table1->candidate_keys() )
+    {
+        push @ck1, [ map { $_->name() } @{ $ck1 } ];
+    }
+
+    my @ck2;
+    for my $ck2 ( $table2->candidate_keys() )
+    {
+        push @ck2, [ map { $_->name() } @{ $ck2 } ];
+    }
+
+    my $expect =
+        exists $override->{ $table1->name() }{candidate_keys}
+        ? $override->{ $table1->name() }{candidate_keys}
+        : \@ck2;
+
+    is_deeply( \@ck1, $expect,
+               "schemas agree on candidate keys for " . $table1->name() );
 }
 
 sub compare_columns

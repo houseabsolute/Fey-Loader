@@ -1,4 +1,4 @@
-package Fey::Test::SQLite;
+package Fey::Test::Pg;
 
 use strict;
 use warnings;
@@ -38,12 +38,12 @@ use File::Temp ();
             DBI->connect
                 ( 'dbi:Pg:dbname=template1', '', '', { PrintError => 0, RaiseError => 1 } );
 
-        eval { $dbh->do( 'DROP DATABASE test_q' ) };
-        $dbh->do( 'CREATE DATABASE test_q' );
+        eval { $dbh->do( 'DROP DATABASE test_fey' ) };
+        $dbh->do( 'CREATE DATABASE test_fey' );
 
         $dbh =
             DBI->connect
-                ( 'dbi:Pg:dbname=test_q', '', '', { PrintError => 0, RaiseError => 1 } );
+                ( 'dbi:Pg:dbname=test_fey', '', '', { PrintError => 0, RaiseError => 1 } );
 
         # Shuts up "NOTICE" warnings from Pg.
         local $dbh->{PrintWarn} = 0;
@@ -79,7 +79,8 @@ EOF
 CREATE TABLE "Group" (
     group_id   serial   not null,
     name       text     not null,
-    PRIMARY KEY (group_id)
+    PRIMARY KEY (group_id),
+    UNIQUE (name)
 )
 EOF
           <<'EOF',

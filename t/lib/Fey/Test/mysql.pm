@@ -38,19 +38,19 @@ use File::Temp ();
             DBI->connect
                 ( 'dbi:mysql:', '', '', { PrintError => 0, RaiseError => 1 } );
 
-        $dbh->func( 'dropdb', 'test_Q', 'admin' );
+        $dbh->func( 'dropdb', 'test_Fey', 'admin' );
 
         # The dropdb command apparently disconnects the handle.
         $dbh =
             DBI->connect
                 ( 'dbi:mysql:', '', '', { PrintError => 0, RaiseError => 1 } );
 
-        $dbh->func( 'createdb', 'test_Q', 'admin' )
+        $dbh->func( 'createdb', 'test_Fey', 'admin' )
             or die $dbh->errstr();
 
         $dbh =
             DBI->connect
-                ( 'dbi:mysql:test_Q', '', '', { PrintError => 0, RaiseError => 1 } );
+                ( 'dbi:mysql:test_Fey', '', '', { PrintError => 0, RaiseError => 1 } );
 
         $dbh->do( 'SET sql_mode = ANSI' );
 
@@ -84,9 +84,10 @@ CREATE TABLE User (
 EOF
           <<'EOF',
 CREATE TABLE "Group" (
-    group_id   integer  not null  auto_increment,
-    name       text     not null,
-    PRIMARY KEY (group_id)
+    group_id   integer       not null  auto_increment,
+    name       varchar(255)  not null,
+    PRIMARY KEY (group_id),
+    UNIQUE (name)
 ) TYPE=INNODB
 EOF
           <<'EOF',

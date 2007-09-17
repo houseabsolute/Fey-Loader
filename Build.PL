@@ -13,7 +13,7 @@ my $builder =
                                 },
           auto_features      =>
           { mysql    => { description => 'mysql support',
-                          requires    => { 'DBD::mysql' => 0 },
+                          requires    => { 'DBD::mysql' => 4.004 },
                         },
             SQLite   => { description => 'SQLite support',
                           requires    => { 'DBD::SQLite' => 0 },
