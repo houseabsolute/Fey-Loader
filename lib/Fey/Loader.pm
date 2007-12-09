@@ -44,7 +44,11 @@ sub _determine_subclass
 
     my $subclass = $class . '::' . $driver;
 
-    return $subclass if $subclass->can('new');
+    {
+        # Shuts up UNIVERSAL::can
+        no warnings;
+        return $subclass if $subclass->can('new');
+    }
 
     eval "use $subclass";
     if ($@)
