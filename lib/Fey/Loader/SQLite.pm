@@ -171,7 +171,8 @@ sub _is_auto_increment
     return $sql =~ /autoincrement/m ? 1 : 0;
 }
 
-sub _primary_key {
+sub _primary_key
+{
     my $self = shift;
     my $name = shift;
 
@@ -184,7 +185,8 @@ sub _primary_key {
     return @pk;
 }
 
-sub _table_sql {
+sub _table_sql
+{
     my $self = shift;
     my $name = shift;
 
