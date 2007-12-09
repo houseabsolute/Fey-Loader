@@ -96,7 +96,7 @@ EOF
 CREATE TABLE "Message" (
     message_id    serial        not null,
     quality       decimal(5,2)  not null  default 2.3,
-    message       varchar(255)  not null  default 'Some message \' text',
+    message       varchar(255)  not null  default 'Some message \'" text',
     message_date  date          not null  default NOW(),
     PRIMARY KEY (message_id)
 )
