@@ -15,7 +15,8 @@ use DBD::mysql 4.004;
 
 use Fey::Literal;
 
-package DBD::mysql::Fixup;
+package # hide from PAUSE
+    DBD::mysql::Fixup;
 
 BEGIN
 {

@@ -15,7 +15,8 @@ use Fey::Literal;
 
 use Scalar::Util qw( looks_like_number );
 
-package DBD::Pg::Fixup;
+package # hide from PAUSE
+    DBD::Pg::Fixup;
 
 BEGIN
 {

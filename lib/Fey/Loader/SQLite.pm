@@ -16,7 +16,8 @@ use DBD::SQLite;
 use Fey::Validate qw( validate SCALAR_TYPE );
 
 
-package DBD::SQLite::Fixup;
+package # hide from PAUSE
+    DBD::SQLite::Fixup;
 
 BEGIN
 {
