@@ -159,11 +159,11 @@ sub _default
     }
     elsif ( $default =~ /^(["'])(.*)\1$/ )
     {
-        return $2;
+        return Fey::Literal::String->new($2);
     }
     elsif ( looks_like_number($default) )
     {
-        return $default;
+        return Fey::Literal::Number->new($default);
     }
     else
     {
