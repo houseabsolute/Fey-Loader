@@ -34,16 +34,16 @@ use Fey::Loader;
     my $def = Fey::Loader::DBI->_default('NULL');
     isa_ok( $def, 'Fey::Literal::Null');
 
-    is( Fey::Loader::DBI->_default( q{'foo'} ), 'foo',
+    is( Fey::Loader::DBI->_default( q{'foo'} )->string(), 'foo',
         q{'foo' as default becomes string foo} );
 
-    is( Fey::Loader::DBI->_default( q{"foo"} ), 'foo',
+    is( Fey::Loader::DBI->_default( q{"foo"} )->string(), 'foo',
         q{"foo" as default becomes string foo} );
 
-    is( Fey::Loader::DBI->_default(42), 42,
+    is( Fey::Loader::DBI->_default(42)->number(), 42,
         '42 as default becomes 42' );
 
-    is( Fey::Loader::DBI->_default(42.42), 42.42,
+    is( Fey::Loader::DBI->_default(42.42)->number(), 42.42,
         '42.42 as default becomes 42.42' );
 
     $def = Fey::Loader::DBI->_default('NOW');

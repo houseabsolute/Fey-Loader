@@ -203,17 +203,13 @@ sub _default
     my $self    = shift;
     my $default = shift;
 
-    if ( $default =~ /^NULL$/i )
-    {
-        return Fey::Literal::Null->new();
-    }
-    elsif ( $default =~ /CURRENT_(?:TIME(?:STAMP)?|DATE)/ )
+    if ( $default =~ /CURRENT_(?:TIME(?:STAMP)?|DATE)/ )
     {
         return Fey::Literal::Term->new($default);
     }
     else
     {
-        return $default;
+        return $self->SUPER::_default($default);
     }
 }
 

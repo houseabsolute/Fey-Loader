@@ -14,6 +14,7 @@ __PACKAGE__->meta()->make_immutable();
 use DBD::mysql 4.004;
 
 use Fey::Literal;
+use Scalar::Util qw( looks_like_number );
 
 package # hide from PAUSE
     DBD::mysql::Fixup;
@@ -143,9 +144,13 @@ sub _default
     {
         return Fey::Literal::Term->new($default);
     }
+    elsif ( looks_like_number($default) )
+    {
+        return Fey::Literal::Number->new($default);
+    }
     else
     {
-        return $default;
+        return Fey::Literal::String->new($default);
     }
 }
 
