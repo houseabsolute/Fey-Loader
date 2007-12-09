@@ -165,7 +165,7 @@ sub _default
     # string defaults come back like 'Foo'::character varying
     elsif ( $default =~ s/^\'(.+)\'::[^:]+$/$1/ )
     {
-        return Fey::Literal->new_from_scalar($default);
+        return Fey::Literal::String->new($default);
     }
     elsif ( $default =~ /\(.*\)/ )
     {
