@@ -157,9 +157,12 @@ sub _default
     {
         return Fey::Literal::Null->new();
     }
-    elsif ( $default =~ /^(["'])(.*)\1$/ )
+    elsif ( $default =~ s/^(["'])(.*)\1$/$2/ )
     {
-        return Fey::Literal::String->new($2);
+        my $quote = $1;
+        $default =~ s/\Q$quote$quote/$quote/g;
+
+        return Fey::Literal::String->new($default);
     }
     elsif ( looks_like_number($default) )
     {
