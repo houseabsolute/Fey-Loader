@@ -3,13 +3,9 @@ package Fey::Loader::Pg;
 use strict;
 use warnings;
 
-use Moose::Policy 'Fey::Policy';
 use Moose;
 
 extends 'Fey::Loader::DBI';
-
-no Moose;
-__PACKAGE__->meta()->make_immutable();
 
 use Fey::Literal;
 
@@ -175,5 +171,7 @@ sub _default
     }
 }
 
+no Moose;
+__PACKAGE__->meta()->make_immutable();
 
 1;

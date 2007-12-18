@@ -3,7 +3,6 @@ package Fey::Loader::DBI;
 use strict;
 use warnings;
 
-use Moose::Policy 'Fey::Policy';
 use Moose;
 
 has 'dbh' =>
@@ -11,9 +10,6 @@ has 'dbh' =>
       isa      => 'DBI::db',
       required => 1,
     );
-
-no Moose;
-__PACKAGE__->meta()->make_immutable();
 
 use Fey::Validate qw( validate SCALAR_TYPE );
 
@@ -312,5 +308,7 @@ sub _fk_info_sth
             );
 }
 
+no Moose;
+__PACKAGE__->meta()->make_immutable();
 
 1;

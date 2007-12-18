@@ -3,13 +3,9 @@ package Fey::Loader::mysql;
 use strict;
 use warnings;
 
-use Moose::Policy 'Fey::Policy';
 use Moose;
 
 extends 'Fey::Loader::DBI';
-
-no Moose;
-__PACKAGE__->meta()->make_immutable();
 
 use DBD::mysql 4.004;
 
@@ -166,5 +162,7 @@ sub _fk_info_sth
             );
 }
 
+no Moose;
+__PACKAGE__->meta()->make_immutable();
 
 1;
