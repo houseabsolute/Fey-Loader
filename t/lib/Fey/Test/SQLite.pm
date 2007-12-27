@@ -36,7 +36,7 @@ use File::Temp ();
 
         $class->_run_ddl($dbh);
 
-        return $dbh;
+        return $DBH = $dbh;
     }
 }
 

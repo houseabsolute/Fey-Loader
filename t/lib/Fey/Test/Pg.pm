@@ -49,7 +49,7 @@ use File::Temp ();
         local $dbh->{PrintWarn} = 0;
         $class->_run_ddl($dbh);
 
-        return $dbh;
+        return $DBH = $dbh;
     }
 }
 
