@@ -22,7 +22,7 @@ BEGIN
     }
 }
 
-# This is hacked up copy of primary_key_info from DBD::Pg 0.49,
+# This is hacked up copy of primary_key_info from DBD::Pg 1.49,
 # tweaked to fetch non-pk index info.
 #
 # It is far from a complete implementation of the method as defined by
