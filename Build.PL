@@ -18,7 +18,7 @@ my $builder =
                                          requires    => { 'DBD::SQLite' => 0 },
                                        },
                              Postgres => { description => 'Postgres support',
-                                           requires    => { 'DBD::Pg' => 0 },
+                                           requires    => { 'DBD::Pg' => 2.0 },
                                          },
                            },
           recursive_test_files => 1,

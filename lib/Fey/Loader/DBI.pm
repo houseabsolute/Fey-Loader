@@ -200,7 +200,7 @@ sub _set_other_keys
     my $self  = shift;
     my $table = shift;
 
-    my $key_info = $self->dbh()->statistics_info( undef, $self->dbh()->{Name}, $table->name(),
+    my $key_info = $self->dbh()->statistics_info( undef, undef, $table->name(),
                                                   'unique only', 'quick' );
 
     return unless $key_info;
