@@ -70,7 +70,7 @@ sub _sql
         ( <<'EOF',
 CREATE TABLE "User" (
     user_id   serial   not null,
-    username  text     not null,
+    username  text     unique not null,
     email     text     null,
     PRIMARY KEY (user_id)
 )

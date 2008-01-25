@@ -58,7 +58,8 @@ sub _sql
 CREATE TABLE User (
     user_id   integer  not null  primary key autoincrement,
     username  text     not null,
-    email     text     null
+    email     text     null,
+    UNIQUE (username)
 )
 EOF
           <<'EOF',

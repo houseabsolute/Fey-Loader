@@ -45,7 +45,8 @@ use Fey::Loader;
                   length => 11,
                 },
             'User.username' =>
-                { type    => 'TEXT',
+                { type    => 'VARCHAR',
+                  length  => 255,
                   default => Fey::Literal::String->new(''),
                 },
             'User.email' =>

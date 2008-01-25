@@ -76,9 +76,9 @@ sub _sql
     return
         ( <<'EOF',
 CREATE TABLE User (
-    user_id   integer  not null  auto_increment,
-    username  text     not null,
-    email     text     null,
+    user_id   integer       not null  auto_increment,
+    username  varchar(255)  unique not null,
+    email     text          null,
     PRIMARY KEY (user_id)
 ) TYPE=INNODB
 EOF
