@@ -7,7 +7,7 @@ use Fey::Test;
 use Fey::Test::Loader;
 use Fey::Test::mysql;
 
-use Test::More tests => 131;
+use Test::More tests => 142;
 
 use Fey::Literal;
 use Fey::Loader;
@@ -39,6 +39,10 @@ use Fey::Loader;
                   precision    => 0, # gah, mysql is so weird
                   generic_type => 'datetime',
                   default      => Fey::Literal::Term->new('CURRENT_TIMESTAMP'),
+                },
+            'Message.parent_message_id' =>
+                { type   => 'INT',
+                  length => 11,
                 },
             'User.user_id' =>
                 { type   => 'INT',

@@ -7,7 +7,7 @@ use Fey::Test;
 use Fey::Test::Loader;
 use Fey::Test::SQLite;
 
-use Test::More tests => 128;
+use Test::More tests => 137;
 
 use Fey::Loader;
 

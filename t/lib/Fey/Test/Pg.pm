@@ -13,10 +13,10 @@ BEGIN
         plan skip_all => 'These tests require DBD::mysql';
     }
 
-    unless ( $ENV{Q_MAINTAINER_TEST_PG} || -d '.svn' )
+    unless ( $ENV{FEY_MAINTAINER_TEST_PG} || -d '.svn' )
     {
         plan skip_all =>
-            'These tests are only run if the Q_MAINTAINER_TEST_PG'
+            'These tests are only run if the FEY_MAINTAINER_TEST_PG'
             . ' env var is true, or if being run from an SVN checkout dir.';
     }
 }
@@ -98,6 +98,7 @@ CREATE TABLE "Message" (
     quality       decimal(5,2)  not null  default 2.3,
     message       varchar(255)  not null  default 'Some message \'" text',
     message_date  date          not null  default NOW(),
+    parent_message_id  integer  null  REFERENCES "Message" (message_id),
     PRIMARY KEY (message_id)
 )
 EOF

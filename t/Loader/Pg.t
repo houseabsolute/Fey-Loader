@@ -7,7 +7,7 @@ use Fey::Test;
 use Fey::Test::Loader;
 use Fey::Test::Pg;
 
-use Test::More tests => 131;
+use Test::More tests => 142;
 
 use Fey::Loader;
 

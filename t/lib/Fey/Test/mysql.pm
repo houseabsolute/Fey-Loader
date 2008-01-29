@@ -13,10 +13,10 @@ BEGIN
         plan skip_all => 'These tests require DBD::mysql';
     }
 
-    unless ( $ENV{Q_MAINTAINER_TEST_MYSQL} || -d '.svn' )
+    unless ( $ENV{FEY_MAINTAINER_TEST_MYSQL} || -d '.svn' )
     {
         plan skip_all =>
-            'These tests are only run if the Q_MAINTAINER_TEST_MYSQL'
+            'These tests are only run if the FEY_MAINTAINER_TEST_MYSQL'
             . ' env var is true, or if being run from an SVN checkout dir.';
     }
 }
@@ -105,8 +105,16 @@ CREATE TABLE Message (
     quality       decimal(5,2)  not null  default 2.3,
     message       varchar(255)  not null  default 'Some message \'" text',
     message_date  timestamp     not null  default CURRENT_TIMESTAMP,
+    parent_message_id  integer  null,
     PRIMARY KEY (message_id)
 ) TYPE=INNODB
+EOF
+          # This has to be done afterwards because the referenced
+          # column doesn't exist until the create table is finished,
+          # as far as mysql is concerned.
+          <<'EOF',
+ALTER TABLE Message
+    ADD FOREIGN KEY (parent_message_id) REFERENCES Message (message_id);
 EOF
           <<'EOF',
 CREATE VIEW TestView
