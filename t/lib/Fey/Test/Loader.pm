@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use Test::More;
-use Data::Dumper ();
 
 
 sub compare_schemas
@@ -170,6 +169,7 @@ sub compare_fks
     my $schema1 = $table1->schema();
     my $schema2 = $table2->schema();
 
+    # We're not using $fk->id() because the ids we generate this way print out much nicer
     my %fk1 = map { $class->_fk_id($_) => 1 } $schema1->foreign_keys_for_table($table1);
     my %fk2 = map { $class->_fk_id($_) => 1 } $schema2->foreign_keys_for_table($table2);
 
@@ -195,16 +195,12 @@ sub _fk_id
     my $class = shift;
     my $fk    = shift;
 
-    my %id = ( source_table   => $fk->source_table()->name(),
-               source_columns => [ map { $_->name() } $fk->source_columns() ],
-               target_table   => $fk->target_table()->name(),
-               target_columns => [ map { $_->name() } $fk->target_columns() ],
-             );
+    my @id =  '  source_table = ' . $fk->source_table()->name();
+    push @id, '  source_columns = ' . join ', ', map { $_->name() } $fk->source_columns();
+    push @id, '  target_table = ' . $fk->target_table()->name();
+    push @id, '  target_columns = ' . join ', ', map { $_->name() } $fk->target_columns();
 
-    my $dump = Data::Dumper::Dumper(\%id);
-    $dump =~ s/^\$VAR1 = //;
-
-    return $dump;
+    return join '', map { $_ . "\n" } @id;
 }
 
 
