@@ -196,9 +196,9 @@ sub _fk_id
     my $fk    = shift;
 
     my @id =  '  source_table = ' . $fk->source_table()->name();
-    push @id, '  source_columns = ' . join ', ', map { $_->name() } $fk->source_columns();
+    push @id, '  source_columns = ' . join ', ', map { $_->name() } @{ $fk->source_columns() };
     push @id, '  target_table = ' . $fk->target_table()->name();
-    push @id, '  target_columns = ' . join ', ', map { $_->name() } $fk->target_columns();
+    push @id, '  target_columns = ' . join ', ', map { $_->name() } @{ $fk->target_columns() };
 
     return join '', map { $_ . "\n" } @id;
 }
