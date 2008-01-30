@@ -106,6 +106,7 @@ CREATE TABLE Message (
     message       varchar(255)  not null  default 'Some message \'" text',
     message_date  timestamp     not null  default CURRENT_TIMESTAMP,
     parent_message_id  integer  null,
+    user_id       integer       not null,
     PRIMARY KEY (message_id)
 ) TYPE=INNODB
 EOF
@@ -114,7 +115,13 @@ EOF
           # as far as mysql is concerned.
           <<'EOF',
 ALTER TABLE Message
-    ADD FOREIGN KEY (parent_message_id) REFERENCES Message (message_id);
+    ADD FOREIGN KEY (parent_message_id) REFERENCES Message (message_id)
+EOF
+          # I have no idea why this doesn't work when it's part of the
+          # CREATE for Message
+          <<'EOF',
+ALTER TABLE Message
+    ADD FOREIGN KEY (user_id) REFERENCES User (user_id)
 EOF
           <<'EOF',
 CREATE VIEW TestView

@@ -82,7 +82,8 @@ CREATE TABLE Message (
     quality       real(5,2)   not null  default 2.3,
     message       text        not null  default 'Some message ''" text',
     message_date  date        not null  default current_date,
-    parent_message_id  integer  null
+    parent_message_id  integer  null,
+    user_id       integer     not null
 )
 EOF
           <<'EOF',

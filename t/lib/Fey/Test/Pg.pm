@@ -98,8 +98,11 @@ CREATE TABLE "Message" (
     quality       decimal(5,2)  not null  default 2.3,
     message       varchar(255)  not null  default 'Some message \'" text',
     message_date  date          not null  default NOW(),
-    parent_message_id  integer  null  REFERENCES "Message" (message_id),
-    PRIMARY KEY (message_id)
+    parent_message_id  integer  null,
+    user_id       integer       not null,
+    PRIMARY KEY (message_id),
+    FOREIGN KEY (parent_message_id) REFERENCES  "Message" (message_id),
+    FOREIGN KEY (user_id)           REFERENCES  "User"  (user_id)
 )
 EOF
           <<'EOF',
