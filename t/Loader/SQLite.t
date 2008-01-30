@@ -21,10 +21,7 @@ use Fey::Loader;
     Fey::Test::Loader->compare_schemas
         ( $schema1, $schema2,
           { 'Message.quality'      => { type => 'real' },
-            # SQLite crack-headedly returns the actual current date as
-            # the default value if we use CURRENT_DATE as the
-            # default. Brilliant!
-            'Message.message_date' => { default => undef },
+            'Message.message_date' => { default => Fey::Literal::Term->new('current_date') },
             skip_foreign_keys => 1,
           },
         );
