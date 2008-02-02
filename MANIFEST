@@ -6,6 +6,7 @@ lib/Fey/Loader/mysql.pm
 lib/Fey/Loader/Pg.pm
 lib/Fey/Loader/SQLite.pm
 MANIFEST			This list of files
+t/kwalitee.t
 t/lib/Fey/Test/Loader.pm
 t/lib/Fey/Test/mysql.pm
 t/lib/Fey/Test/Pg.pm
