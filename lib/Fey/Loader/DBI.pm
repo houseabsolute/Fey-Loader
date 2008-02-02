@@ -59,7 +59,7 @@ sub _catalog_name { undef }
 
 sub _schema_name { undef }
 
-sub unquote_identifier
+sub _unquote_identifier
 {
     my $self  = shift;
     my $ident = shift;
@@ -78,7 +78,7 @@ sub _add_table
     my $schema     = shift;
     my $table_info = shift;
 
-    my $name = $self->unquote_identifier( $table_info->{TABLE_NAME} );
+    my $name = $self->_unquote_identifier( $table_info->{TABLE_NAME} );
 
     my $table =
         Fey::Table->new
@@ -118,7 +118,7 @@ sub _column_params
     my $table    = shift;
     my $col_info = shift;
 
-    my $name = $self->unquote_identifier( $col_info->{COLUMN_NAME} );
+    my $name = $self->_unquote_identifier( $col_info->{COLUMN_NAME} );
 
     my %col = ( name         => $name,
                 type         => $col_info->{TYPE_NAME},
@@ -188,7 +188,7 @@ sub _set_primary_key
     while ( my $pk_col = $pk_info->fetchrow_hashref() )
     {
         $pk[ $pk_col->{KEY_SEQ} - 1 ] =
-            $self->unquote_identifier( $pk_col->{COLUMN_NAME} );
+            $self->_unquote_identifier( $pk_col->{COLUMN_NAME} );
     }
 
     $table->add_candidate_key(@pk)
@@ -211,7 +211,7 @@ sub _set_other_keys
         $ck{ $ck_col->{INDEX_NAME} } ||= [];
 
         $ck{ $ck_col->{INDEX_NAME} }[ $ck_col->{ORDINAL_POSITION} - 1 ] =
-            $self->unquote_identifier( $ck_col->{COLUMN_NAME} );
+            $self->_unquote_identifier( $ck_col->{COLUMN_NAME} );
     }
 
     for my $key ( values %ck )
@@ -242,7 +242,7 @@ sub _add_foreign_keys
 
             for my $k (@keys)
             {
-                $fk_info->{$k} = $self->unquote_identifier( $fk_info->{$k} )
+                $fk_info->{$k} = $self->_unquote_identifier( $fk_info->{$k} )
                     if defined $fk_info->{$k};
             }
 
