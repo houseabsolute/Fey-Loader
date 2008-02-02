@@ -312,3 +312,62 @@ no Moose;
 __PACKAGE__->meta()->make_immutable();
 
 1;
+
+__END__
+
+=head1 NAME
+
+Fey::Loader::DBI - Base class (and fallback) for loading a schema
+
+=head1 SYNOPSIS
+
+  my $loader = Fey::Loader->new( dbh => $dbh );
+
+  my $schema = $loader->make_schema( name => $name );
+
+=head1 DESCRIPTION
+
+C<Fey::Loader::DBI> will create a schema by using the various DBI info
+methods. It is a complete implementation of a loader, but it only
+works if the driver in question fully supports the info methods
+needed, which many don't. In addition, some information simply isn't
+available via those methods, like whether a column is auto-incremented.
+
+For that reason, you probably won't get good results for your schema
+unless there is a driver-specific loader subclass for your DBMS.
+
+=head1 METHODS
+
+This class provides the following methods:
+
+=head2 Fey::Loader::DBI->new( dbh => $dbh )
+
+Given a database handle, returns a new C<Fey::Loader::DBI> object. You
+probably want to call C<Fey::Loader->new()> instead, though.
+
+=head2 $loader->make_schema( name => $name )
+
+This method returns a new, fully-populated C<Fey::Schema> object. The
+name parameter is optional, and if given will be used as the name of
+the new schema. Otherwise the name will be found through the C<DBI>
+handle.
+
+=head1 AUTHOR
+
+Dave Rolsky, <autarch@urth.org>
+
+=head1 BUGS
+
+Please report any bugs or feature requests to
+C<bug-fey-loader@rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org>.  I will be notified, and then you'll
+automatically be notified of progress on your bug as I make changes.
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright 2006-2008 Dave Rolsky, All Rights Reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+=cut
