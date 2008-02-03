@@ -19,7 +19,11 @@ use Fey::Loader;
     isa_ok( $loader, 'Fey::Loader::DBI' );
 }
 
+SKIP:
 {
+    skip 'These tests require DBD::SQLite', 2
+        unless eval { require DBD::SQLite };
+
     my $dbh = Fey::Test->mock_dbh();
     $dbh->{Driver}{Name} = 'SQLite';
 
