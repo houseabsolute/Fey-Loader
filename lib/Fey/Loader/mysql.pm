@@ -169,7 +169,7 @@ __PACKAGE__->meta()->make_immutable();
 
 =head1 NAME
 
-Fey::Loader::mysql - Loader for Postgres schemas
+Fey::Loader::mysql - Loader for MySQL schemas
 
 =head1 SYNOPSIS
 

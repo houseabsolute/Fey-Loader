@@ -218,7 +218,7 @@ __END__
 
 =head1 NAME
 
-Fey::Loader::SQLite - Loader for Postgres schemas
+Fey::Loader::SQLite - Loader for SQLite schemas
 
 =head1 SYNOPSIS
 
