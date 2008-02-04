@@ -1,3 +1,11 @@
+0.02    2008-02-03
+
+- Some tests failed when DBD::SQLite was not installed. These are now
+  skipped.
+
+- Require DBD::SQLite 1.14+ for SQLite support.
+
+
 0.01    2008-02-02
 
 - First release upon an unsuspecting world.
