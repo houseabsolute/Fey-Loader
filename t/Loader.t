@@ -21,8 +21,8 @@ use Fey::Loader;
 
 SKIP:
 {
-    skip 'These tests require DBD::SQLite', 2
-        unless eval { require DBD::SQLite };
+    skip 'These tests require DBD::SQLite 1.14+', 2
+        unless eval 'use DBD::SQLite 1.14; 1;';
 
     my $dbh = Fey::Test->mock_dbh();
     $dbh->{Driver}{Name} = 'SQLite';

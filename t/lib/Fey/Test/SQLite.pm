@@ -7,10 +7,10 @@ use Test::More;
 
 BEGIN
 {
-    unless ( eval { require DBD::SQLite; 1 } )
+    unless ( eval 'use DBD::SQLite 1.14; 1' )
     {
         local $Test::Builder::Level = $Test::Builder::Level + 1;
-        plan skip_all => 'These tests require DBD::SQLite';
+        plan skip_all => 'These tests require DBD::SQLite 1.14+';
     }
 }
 
