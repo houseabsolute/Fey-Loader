@@ -7,7 +7,7 @@ use Moose;
 
 extends 'Fey::Loader::DBI';
 
-use DBD::SQLite;
+use DBD::SQLite 1.14;
 
 use Fey::Validate qw( validate SCALAR_TYPE );
 
