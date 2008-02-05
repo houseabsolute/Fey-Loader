@@ -21,6 +21,7 @@ use File::Temp ();
 
 {
     my $DBH;
+    my $DSN;
     sub dbh
     {
         my $class = shift;
@@ -30,13 +31,22 @@ use File::Temp ();
         my $dir = File::Temp::tempdir( CLEANUP => 1 );
         my $file = File::Spec->catfile( $dir, 'test_fey.sqlite' );
 
+        $DSN = "dbi:SQLite:dbname=$file";
+
         my $dbh =
             DBI->connect
-                ( "dbi:SQLite:dbname=$file", '', '', { RaiseError => 1 } );
+                ( $DSN, '', '', { RaiseError => 1 } );
 
         $class->_run_ddl($dbh);
 
         return $DBH = $dbh;
+    }
+
+    sub dsn
+    {
+        dbh();
+
+        return $DSN;
     }
 }
 
