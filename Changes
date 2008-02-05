@@ -1,3 +1,9 @@
+0.04    2008-02-05
+
+- Moved test libraries to Fey-Test distro, and added it as a build
+  prereq.
+
+
 0.03    2008-02-03
 
 - More test fixes. Skip tests gracefully (rather than failing badly)
