@@ -7,7 +7,8 @@ my $builder =
     Module::Build->new
         ( module_name => 'Fey::Loader',
           license     => 'perl',
-          requires    => { 'Fey'          => 0,
+          requires    => { 'DBI'          => 0,
+                           'Fey'          => 0,
                            'Moose'        => 0,
                            'Scalar::Util' => 0,
                          },

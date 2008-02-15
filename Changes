@@ -1,3 +1,8 @@
+0.05
+
+- Added DBI as a prereq.
+
+
 0.04    2008-02-05
 
 - Moved test libraries to Fey-Test distro, and added it as a build
