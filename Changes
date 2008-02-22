@@ -2,6 +2,11 @@
 
 - Added DBI as a prereq.
 
+- Pass catalog and schema name to all the DBI information methods used
+  in Fey::Loader::DBI. This should make it easier to support these
+  properly for future loaders, like Oracle or Sybase. Patch by Todd
+  Hepler.
+
 
 0.04    2008-02-05
 
