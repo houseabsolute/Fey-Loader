@@ -55,7 +55,6 @@ use Fey::Loader;
             'User.username' =>
                 { type    => 'VARCHAR',
                   length  => 255,
-                  default => Fey::Literal::String->new(''),
                 },
             'User.email' =>
                 { type   => 'TEXT',
@@ -75,7 +74,6 @@ use Fey::Loader;
             'Group.name' =>
                 { type    => 'VARCHAR',
                   length  => 255,
-                  default => Fey::Literal::String->new(''),
                 },
           },
         );
