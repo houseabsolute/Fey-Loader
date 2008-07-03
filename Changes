@@ -1,3 +1,10 @@
+0.06
+
+- Changed Fey::Loader::DBI to pass a catalog and schema name to all of
+  the DBI info methods. This should make it easier for someone to
+  write an Oracle loader. Patch by Todd Hepler.
+
+
 0.05    2008-02-24
 
 - Added DBI as a prereq.
