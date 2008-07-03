@@ -100,7 +100,13 @@ sub _add_columns
     my $self  = shift;
     my $table = shift;
 
-    my $sth = $self->dbh()->column_info( undef, undef, $table->name(), '%' );
+    my $sth =
+        $self->dbh()->column_info
+            ( $self->_catalog_name(),
+              $self->_schema_name(),
+              $table->name(),
+              '%'
+            );
 
     while ( my $col_info = $sth->fetchrow_hashref() )
     {
@@ -180,7 +186,12 @@ sub _set_primary_key
     my $self  = shift;
     my $table = shift;
 
-    my $pk_info = $self->dbh()->primary_key_info( undef, undef, $table->name() );
+    my $pk_info =
+        $self->dbh()->primary_key_info
+            ( $self->_catalog_name(),
+              $self->_schema_name(),
+              $table->name()
+            );
 
     return unless $pk_info;
 
@@ -200,8 +211,14 @@ sub _set_other_keys
     my $self  = shift;
     my $table = shift;
 
-    my $key_info = $self->dbh()->statistics_info( undef, undef, $table->name(),
-                                                  'unique only', 'quick' );
+    my $key_info =
+        $self->dbh()->statistics_info
+            ( $self->_catalog_name(),
+              $self->_schema_name(),
+              $table->name(),
+              'unique only',
+              'quick'
+            );
 
     return unless $key_info;
 
@@ -303,8 +320,12 @@ sub _fk_info_sth
 
     return
         $self->dbh()->foreign_key_info
-            ( undef, undef, $name,
-              undef, undef, undef,
+            ( $self->_catalog_name,
+              $self->_schema_name,
+              $name,
+              $self->_catalog_name,
+              $self->_schema_name,
+              undef,
             );
 }
 
