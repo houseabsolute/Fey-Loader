@@ -1,18 +1,19 @@
 0.06
 
-- Changed Fey::Loader::DBI to pass a catalog and schema name to all of
-  the DBI info methods. This should make it easier for someone to
-  write an Oracle loader. Patch by Todd Hepler.
+- When adding a primary key, the code only worked if the primary key
+  was the "first" column(s) of the table, where "first" is defined as
+  the order returned by DBI. Reported by Dieter Pearcey.
+
+- I said I did this in 0.05, but apparently I lied ... Pass catalog
+  and schema name to all the DBI information methods used in
+  Fey::Loader::DBI. This should make it easier to support these
+  properly for future loaders, like Oracle or Sybase. Patch by Todd
+  Hepler.
 
 
 0.05    2008-02-24
 
 - Added DBI as a prereq.
-
-- Pass catalog and schema name to all the DBI information methods used
-  in Fey::Loader::DBI. This should make it easier to support these
-  properly for future loaders, like Oracle or Sybase. Patch by Todd
-  Hepler.
 
 
 0.04    2008-02-05
