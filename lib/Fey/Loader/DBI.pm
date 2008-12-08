@@ -195,12 +195,16 @@ sub _set_primary_key
 
     return unless $pk_info;
 
-    my @pk;
+    my %pk;
     while ( my $pk_col = $pk_info->fetchrow_hashref() )
     {
-        $pk[ $pk_col->{KEY_SEQ} - 1 ] =
+        # KEY_SEQ refers to the "position" of the column in the table,
+        # not in the key, and so may start at any random number.
+        $pk{ $pk_col->{KEY_SEQ} } =
             $self->_unquote_identifier( $pk_col->{COLUMN_NAME} );
     }
+
+    my @pk = @pk{ sort keys %pk };
 
     $table->add_candidate_key(@pk)
         if @pk;
