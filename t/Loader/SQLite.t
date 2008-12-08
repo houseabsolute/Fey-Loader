@@ -1,8 +1,6 @@
 use strict;
 use warnings;
 
-use lib 't/lib';
-
 use Fey::Test;
 use Fey::Test::Loader;
 use Fey::Test::SQLite;
