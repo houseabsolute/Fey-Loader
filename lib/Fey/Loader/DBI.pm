@@ -267,7 +267,10 @@ sub _add_foreign_keys
                     if defined $fk_info->{$k};
             }
 
-            my $key = $fk_info->{FK_NAME};
+            # The FK_NAME might not be unique (two tables can use the
+            # same FK name).
+            my $key =
+                join "\-", @{ $fk_info }{ qw( FK_NAME FK_TABLE_NAME UK_TABLE_NAME ) };
 
             $fk{$key}{source_columns}[ $fk_info->{ORDINAL_POSITION} - 1 ] =
                 $schema->table( $fk_info->{FK_TABLE_NAME} )
