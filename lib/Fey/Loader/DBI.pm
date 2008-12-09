@@ -272,25 +272,17 @@ sub _add_foreign_keys
             my $key =
                 join "\-", @{ $fk_info }{ qw( FK_NAME FK_TABLE_NAME UK_TABLE_NAME ) };
 
-            $fk{$key}{source_columns}[ $fk_info->{ORDINAL_POSITION} - 1 ] =
+            push @{ $fk{$key}{source_columns} },
                 $schema->table( $fk_info->{FK_TABLE_NAME} )
                        ->column( $fk_info->{FK_COLUMN_NAME} );
 
-            $fk{$key}{target_columns}[ $fk_info->{ORDINAL_POSITION} - 1 ] =
+            push @{ $fk{$key}{target_columns} },
                 $schema->table( $fk_info->{UK_TABLE_NAME} )
                         ->column( $fk_info->{UK_COLUMN_NAME} );
         }
 
         for my $fk_cols ( values %fk )
         {
-            # This is a gross workaround for what seems to be a bug in
-            # DBD::Pg. The ORDINAL_POSITION is sequential across
-            # different fks, so we end up with undef in the array.
-            for my $k ( qw( source_columns target_columns ) )
-            {
-                $fk_cols->{$k} = [ grep { defined } @{ $fk_cols->{$k} } ]
-            }
-
             my $fk = Fey::FK->new( %{$fk_cols} );
 
             $schema->add_foreign_key($fk);
