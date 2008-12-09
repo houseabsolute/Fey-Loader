@@ -10,6 +10,9 @@
   properly for future loaders, like Oracle or Sybase. Patch by Todd
   Hepler.
 
+- If two tables used the same foreign key name to refer to the same
+  foreign table, the loader would blow up. Reported by Dieter Pearcey.
+
 
 0.05    2008-02-24
 
