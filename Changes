@@ -1,4 +1,4 @@
-0.06
+0.06    2008-12-09
 
 - When adding a primary key, the code only worked if the primary key
   was the "first" column(s) of the table, where "first" is defined as
