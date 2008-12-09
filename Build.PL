@@ -12,7 +12,7 @@ my $builder =
                            'Moose'        => 0,
                            'Scalar::Util' => 0,
                          },
-          build_requires => { 'Fey::Test'  => 0.01,
+          build_requires => { 'Fey::Test'  => 0.06,
                               'Test::More' => 0,
                             },
           auto_features => { mysql => { description => 'mysql support',
