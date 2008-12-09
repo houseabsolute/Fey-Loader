@@ -39,3 +39,5 @@
 \bFey-Loader-[\d\.\_]+
 
 \.shipit
+
+\.hg.*
