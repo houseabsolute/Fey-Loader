@@ -4,17 +4,21 @@ use warnings;
 use Fey::Test;
 use Fey::Test::Loader;
 
-use Test::More tests => 161;
+use Test::More tests => 181;
 
 use Fey::Loader;
 
+sub new_loader {
+    local $SIG{__WARN__} = sub {
+        my @w = grep { ! /driver-specific/ } @_;
+        warn @w if @w;
+    };
+    Fey::Loader->new( dbh => Fey::Test->mock_dbh(), @_ )
+}
+
 
 {
-    my $loader =
-        do { local $SIG{__WARN__} =
-                 sub { my @w = grep { ! /driver-specific/ } @_;
-                       warn @w if @w; };
-             Fey::Loader->new( dbh => Fey::Test->mock_dbh() ) };
+    my $loader = new_loader();
 
     my $schema1 = $loader->make_schema();
     my $schema2 = Fey::Test->mock_test_schema_with_fks();
@@ -49,3 +53,38 @@ use Fey::Loader;
     is( $def->sql, 'NOW',
         'unquoted NOW as default becomes NOW as term' );
 }
+
+{
+    {
+        package 
+            Test::Schema;
+        use Moose; extends 'Fey::Schema';
+    }
+    {
+        package
+            Test::Table;
+        use Moose; extends 'Fey::Table';
+    }
+    {
+        package
+            Test::Column;
+        use Moose; extends 'Fey::Column';
+    }
+
+    my $loader = new_loader(
+        schema_class => 'Test::Schema',
+        table_class  => 'Test::Table',
+        column_class => 'Test::Column',
+    );
+
+    my $schema = $loader->make_schema();
+
+    isa_ok( $schema, 'Test::Schema' );
+    for my $table ( $schema->tables() ) {
+        isa_ok( $table, 'Test::Table' );
+        for my $column ( $table->columns() ) {
+            isa_ok( $column, 'Test::Column' );
+        }
+    }
+}
+
