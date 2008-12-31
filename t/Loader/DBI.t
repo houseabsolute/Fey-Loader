@@ -4,7 +4,7 @@ use warnings;
 use Fey::Test;
 use Fey::Test::Loader;
 
-use Test::More tests => 181;
+use Test::More tests => 188;
 
 use Fey::Loader;
 
@@ -77,10 +77,17 @@ sub new_loader
         extends 'Fey::Column';
     }
 
+    {
+        package Test::FK;
+        use Moose;
+        extends 'Fey::FK';
+    }
+
     my $loader =
         new_loader( schema_class => 'Test::Schema',
                     table_class  => 'Test::Table',
                     column_class => 'Test::Column',
+                    fk_class     => 'Test::FK',
                   );
 
     my $schema = $loader->make_schema();
@@ -94,6 +101,11 @@ sub new_loader
         for my $column ( $table->columns() )
         {
             isa_ok( $column, 'Test::Column' );
+        }
+
+        for my $fk ( $schema->foreign_keys_for_table($table) )
+        {
+            isa_ok( $fk, 'Test::FK' );
         }
     }
 }

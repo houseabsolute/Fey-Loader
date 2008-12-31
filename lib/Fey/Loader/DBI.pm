@@ -29,6 +29,12 @@ has 'column_class' =>
       default  => 'Fey::Column',
     );
 
+has 'fk_class' =>
+    ( is       => 'ro',
+      isa      => 'ClassName',
+      default  => 'Fey::FK',
+    );
+
 use Fey::Validate qw( validate SCALAR_TYPE );
 
 use Fey::Column;
@@ -301,7 +307,7 @@ sub _add_foreign_keys
 
         for my $fk_cols ( values %fk )
         {
-            my $fk = Fey::FK->new( %{$fk_cols} );
+            my $fk = $self->fk_class()->new( %{$fk_cols} );
 
             $schema->add_foreign_key($fk);
         }
@@ -384,9 +390,10 @@ Given a database handle, returns a new C<Fey::Loader::DBI> object. You
 probably want to call C<Fey::Loader->new()> instead, though.
 
 To change the classes used to build up the schema and its related
-objects, you may provide C<schema_class>, C<table_class>, and
-C<column_class> parameters; they default to C<Fey::Schema>,
-C<Fey::Table>, and C<Fey::Column>, respectively.
+objects, you may provide C<schema_class>, C<table_class>,
+C<column_class>, and C<fk_class> parameters; they default to
+C<Fey::Schema>, C<Fey::Table>, C<Fey::Column>, and C<Fey::FK>
+respectively.
 
 =head2 $loader->make_schema( name => $name )
 

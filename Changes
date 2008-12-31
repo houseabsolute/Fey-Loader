@@ -1,3 +1,10 @@
+0.07    2008-12-31
+
+- Added parameters to Fey::Loader::DBI which allow you to specify
+  alternate schema, table, column, and fk classes. Mostly patched by
+  Dieter Pearcey.
+
+
 0.06    2008-12-09
 
 - When adding a primary key, the code only worked if the primary key
