@@ -8,12 +8,16 @@ use Test::More tests => 181;
 
 use Fey::Loader;
 
-sub new_loader {
-    local $SIG{__WARN__} = sub {
-        my @w = grep { ! /driver-specific/ } @_;
-        warn @w if @w;
-    };
-    Fey::Loader->new( dbh => Fey::Test->mock_dbh(), @_ )
+sub new_loader
+{
+    local $SIG{__WARN__} =
+        sub
+        {
+            my @w = grep { ! /driver-specific/ } @_;
+            warn @w if @w;
+        };
+
+    return Fey::Loader->new( dbh => Fey::Test->mock_dbh(), @_ )
 }
 
 
@@ -56,33 +60,39 @@ sub new_loader {
 
 {
     {
-        package 
-            Test::Schema;
-        use Moose; extends 'Fey::Schema';
-    }
-    {
-        package
-            Test::Table;
-        use Moose; extends 'Fey::Table';
-    }
-    {
-        package
-            Test::Column;
-        use Moose; extends 'Fey::Column';
+        package Test::Schema;
+        use Moose;
+        extends 'Fey::Schema';
     }
 
-    my $loader = new_loader(
-        schema_class => 'Test::Schema',
-        table_class  => 'Test::Table',
-        column_class => 'Test::Column',
-    );
+    {
+        package Test::Table;
+        use Moose;
+        extends 'Fey::Table';
+    }
+
+    {
+        package Test::Column;
+        use Moose;
+        extends 'Fey::Column';
+    }
+
+    my $loader =
+        new_loader( schema_class => 'Test::Schema',
+                    table_class  => 'Test::Table',
+                    column_class => 'Test::Column',
+                  );
 
     my $schema = $loader->make_schema();
 
     isa_ok( $schema, 'Test::Schema' );
-    for my $table ( $schema->tables() ) {
+
+    for my $table ( $schema->tables() )
+    {
         isa_ok( $table, 'Test::Table' );
-        for my $column ( $table->columns() ) {
+
+        for my $column ( $table->columns() )
+        {
             isa_ok( $column, 'Test::Column' );
         }
     }
