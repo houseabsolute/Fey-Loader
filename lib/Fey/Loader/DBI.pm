@@ -383,10 +383,10 @@ This class provides the following methods:
 Given a database handle, returns a new C<Fey::Loader::DBI> object. You
 probably want to call C<Fey::Loader->new()> instead, though.
 
-To change the classes used to build up the schema and its related objects, you
-may provide C<schema_class>, C<table_class>, and C<column_class> parameters;
-they default to C<Fey::Schema>, C<Fey::Table>, and C<Fey::Column>,
-respectively.
+To change the classes used to build up the schema and its related
+objects, you may provide C<schema_class>, C<table_class>, and
+C<column_class> parameters; they default to C<Fey::Schema>,
+C<Fey::Table>, and C<Fey::Column>, respectively.
 
 =head2 $loader->make_schema( name => $name )
 
