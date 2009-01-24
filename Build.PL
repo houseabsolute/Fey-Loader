@@ -29,10 +29,12 @@ my $builder =
           create_makefile_pl   => 'traditional',
           create_readme        => 1,
           sign                 => 1,
-          resources =>
-              { homepage   => 'http://www.fey-project.org/',
-                bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Fey-Loader',
-                repository => 'http://hg.urth.org/hg/Fey-Loader',
+          meta_merg =>
+              { resources =>
+                    { homepage   => 'http://www.fey-project.org/',
+                      bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Fey-Loader',
+                      repository => 'http://hg.urth.org/hg/Fey-Loader',
+                    },
               },
         );
 
