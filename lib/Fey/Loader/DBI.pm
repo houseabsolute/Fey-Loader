@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Moose;
+use MooseX::Params::Validate qw( validated_hash );
 
 has 'dbh' =>
     ( is       => 'ro',
@@ -35,8 +36,6 @@ has 'fk_class' =>
       default  => 'Fey::FK',
     );
 
-use Fey::Validate qw( validate SCALAR_TYPE );
-
 use Fey::Column;
 use Fey::FK;
 use Fey::Schema;
@@ -44,23 +43,19 @@ use Fey::Table;
 
 use Scalar::Util qw( looks_like_number );
 
-
+sub make_schema
 {
-    my $spec = { name => SCALAR_TYPE( optional => 1 ) };
-    sub make_schema
-    {
-        my $self = shift;
-        my %p    = validate( @_, $spec );
+    my $self = shift;
+    my %p    = validated_hash( \@_, name => { isa => 'Str', optional => 1 } );
 
-        my $name = delete $p{name} || $self->dbh()->{Name};
+    my $name = delete $p{name} || $self->dbh()->{Name};
 
-        my $schema = $self->schema_class()->new( name => $name );
+    my $schema = $self->schema_class()->new( name => $name );
 
-        $self->_add_tables($schema);
-        $self->_add_foreign_keys($schema);
+    $self->_add_tables($schema);
+    $self->_add_foreign_keys($schema);
 
-        return $schema;
-    }
+    return $schema;
 }
 
 sub _add_tables
