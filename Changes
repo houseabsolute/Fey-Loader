@@ -1,3 +1,9 @@
+0.08    2008-02-06
+
+- Use MooseX::Params::Validate instead of the no-longer-in-Fey
+  Fey::Validate.
+
+
 0.07    2008-12-31
 
 - Added parameters to Fey::Loader::DBI which allow you to specify
