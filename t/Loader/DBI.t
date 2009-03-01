@@ -4,7 +4,7 @@ use warnings;
 use Fey::Test;
 use Fey::Test::Loader;
 
-use Test::More tests => 188;
+use Test::More tests => 190;
 
 use Fey::Loader;
 
@@ -110,3 +110,20 @@ sub new_loader
     }
 }
 
+{
+    my $dbh = Fey::Test->mock_dbh();
+
+    $dbh->{Name} = 'database=FooBar;port=1234';
+
+    my $loader = Fey::Loader::DBI->new( dbh => $dbh );
+
+    is( $loader->_dbh_name(), 'FooBar',
+        'parsed database name from DSN' );
+
+    $dbh->{Name} = 'database=FooBar2';
+
+    $loader = Fey::Loader::DBI->new( dbh => $dbh );
+
+    is( $loader->_dbh_name(), 'FooBar2',
+        'parsed database name from DSN' );
+}

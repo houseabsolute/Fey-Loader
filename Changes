@@ -1,4 +1,12 @@
-0.08    2008-02-06
+0.09    2009-03-01
+
+- Foreign key handling for MySQL was broken because of an incorrect
+  use of $dbh->{Name}. Fey::Loader::DBI now does some rudimentary DSN
+  parsing to get the database name when it is needed. Reported by
+  Andrew Baumhauer.
+
+
+0.08    2009-02-06
 
 - Use MooseX::Params::Validate instead of the no-longer-in-Fey
   Fey::Validate.

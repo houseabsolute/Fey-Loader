@@ -157,7 +157,7 @@ sub _fk_info_sth
 
     return
         $self->dbh()->foreign_key_info
-            ( undef, $self->dbh()->{Name}, $name,
+            ( undef, $self->_dbh_name(), $name,
               undef, undef, undef,
             );
 }

@@ -36,6 +36,13 @@ has 'fk_class' =>
       default  => 'Fey::FK',
     );
 
+has '_dbh_name' =>
+    ( is      => 'ro',
+      isa     => 'Str',
+      lazy    => 1,
+      builder => '_build_dbh_name',
+    );
+
 use Fey::Column;
 use Fey::FK;
 use Fey::Schema;
@@ -48,7 +55,7 @@ sub make_schema
     my $self = shift;
     my %p    = validated_hash( \@_, name => { isa => 'Str', optional => 1 } );
 
-    my $name = delete $p{name} || $self->dbh()->{Name};
+    my $name = delete $p{name} || $self->_dbh_name();
 
     my $schema = $self->schema_class()->new( name => $name );
 
@@ -56,6 +63,19 @@ sub make_schema
     $self->_add_foreign_keys($schema);
 
     return $schema;
+}
+
+sub _build_dbh_name
+{
+    my $self = shift;
+
+    my $dsn_ish = $self->dbh()->{Name};
+
+    return $dsn_ish unless $dsn_ish =~ /\W/;
+
+    return $1 if $dsn_ish =~ /database=([^;]+?)(?:;|\z)/;
+
+    die "Cannot figure out the database name from the DSN - $dsn_ish\n";
 }
 
 sub _add_tables
