@@ -30,7 +30,7 @@ my $builder =
           create_makefile_pl   => 'traditional',
           create_readme        => 1,
           sign                 => 1,
-          meta_merg =>
+          meta_merge =>
               { resources =>
                     { homepage   => 'http://www.fey-project.org/',
                       bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Fey-Loader',
