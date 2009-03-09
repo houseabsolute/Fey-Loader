@@ -12,6 +12,13 @@ use Fey::Literal;
 use Scalar::Util qw( looks_like_number );
 
 
+sub _build_dbh_name
+{
+    my $self = shift;
+
+    return $self->dbh()->selectrow_arrayref('SELECT CURRENT_DATABASE()')->[0];
+}
+
 sub _schema_name { 'public' }
 
 sub _column_params

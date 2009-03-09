@@ -5,7 +5,7 @@ use Fey::Test;
 use Fey::Test::Loader;
 use Fey::Test::mysql;
 
-use Test::More tests => 155;
+use Test::More tests => 156;
 
 use Fey::Literal;
 use Fey::Loader;
@@ -75,6 +75,9 @@ use Fey::Loader;
                 },
           },
         );
+
+    is( $loader->_build_dbh_name(), 'test_Fey',
+        'database name is test_fey' );
 }
 
 {

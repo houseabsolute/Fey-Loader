@@ -1,7 +1,9 @@
 0.10
 
-- Improved the DSN parsing a bit so it handles both "database=Foo" and
-  "dbname=Foo".
+- For Pg and mysql, we not just query the dbms to get the current
+  database name. This is much safer than trying to parse the DSN. DSN
+  parsing is still used as a fallback for any other dbms, and has been
+  improved a bit.
 
 
 0.09    2009-03-01

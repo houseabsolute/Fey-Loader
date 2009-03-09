@@ -82,6 +82,13 @@ sub _statistics_info {
 
 package Fey::Loader::mysql;
 
+sub _build_dbh_name
+{
+    my $self = shift;
+
+    return $self->dbh()->selectrow_arrayref('SELECT DATABASE()')->[0];
+}
+
 sub _column_params
 {
     my $self     = shift;
