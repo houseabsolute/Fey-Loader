@@ -73,7 +73,7 @@ sub _build_dbh_name
 
     return $dsn_ish unless $dsn_ish =~ /\W/;
 
-    return $1 if $dsn_ish =~ /database=([^;]+?)(?:;|\z)/;
+    return $1 if $dsn_ish =~ /(?:database|dbname)=([^;]+?)(?:;|\z)/;
 
     die "Cannot figure out the database name from the DSN - $dsn_ish\n";
 }
