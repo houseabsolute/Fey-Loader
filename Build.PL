@@ -20,7 +20,7 @@ my $builder =
                                         requires    => { 'DBD::mysql' => 4.004 },
                                       },
                              SQLite => { description => 'SQLite support',
-                                         requires    => { 'DBD::SQLite' => 1.14 },
+                                         requires    => { 'DBD::SQLite' => 1.20 },
                                        },
                              Postgres => { description => 'Postgres support',
                                            requires    => { 'DBD::Pg' => 2.0 },
