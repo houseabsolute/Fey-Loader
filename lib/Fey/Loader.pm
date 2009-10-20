@@ -80,8 +80,8 @@ The generic loader simply uses the various schema information methods
 specified by C<DBI>. This in turn depends on these methods being
 implemented by the driver.
 
-See the L<Fey::Loader::DBI> class for more details on how the C<make_schema()>
-method works.
+See the L<Fey::Loader::DBI> class for more details on how the C<new()> method
+works.
 
 =head1 METHODS
 
