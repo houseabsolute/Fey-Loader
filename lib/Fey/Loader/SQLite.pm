@@ -99,7 +99,7 @@ sub _is_auto_increment
 
     # ... therefore if the table's SQL includes the string
     # autoincrement, then the primary key must be auto-incremented.
-    return $sql =~ /autoincrement/m ? 1 : 0;
+    return $sql =~ /autoincrement/mi ? 1 : 0;
 }
 
 sub _primary_key
@@ -134,7 +134,7 @@ sub _default
     my $self    = shift;
     my $default = shift;
 
-    if ( $default =~ /CURRENT_(?:TIME(?:STAMP)?|DATE)/ )
+    if ( $default =~ /CURRENT_(?:TIME(?:STAMP)?|DATE)/i )
     {
         return Fey::Literal::Term->new($default);
     }

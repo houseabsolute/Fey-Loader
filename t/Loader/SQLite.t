@@ -19,7 +19,7 @@ use Fey::Loader;
     Fey::Test::Loader->compare_schemas
         ( $schema1, $schema2,
           { 'Message.quality'      => { type => 'real' },
-            'Message.message_date' => { default => Fey::Literal::Term->new('current_date') },
+            'Message.message_date' => { default => Fey::Literal::Term->new('CURRENT_DATE') },
             skip_foreign_keys => 1,
           },
         );
