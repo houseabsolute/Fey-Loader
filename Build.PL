@@ -13,7 +13,7 @@ my $builder =
                         'MooseX::Params::Validate' => '0.08',
                         'Scalar::Util'             => 0,
                       },
-          build_requires => { 'Fey::Test'  => 0.06,
+          build_requires => { 'Fey::Test'  => 0.07,
                               'Test::More' => 0,
                             },
           auto_features => { mysql => { description => 'mysql support',
