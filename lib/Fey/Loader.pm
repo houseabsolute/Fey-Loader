@@ -55,7 +55,7 @@ __END__
 
 =head1 NAME
 
-Fey::Loader - Load your schema defintion from a DBMS
+Fey::Loader - Load your schema definition from a DBMS
 
 =head1 SYNOPSIS
 
