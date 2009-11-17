@@ -1,3 +1,10 @@
+0.11    2009-11-17
+
+- Fixed a bug in the SQLite loader where it expected identifiers like
+  "autoincrement" or "current_date" to only appear in lower case. These are
+  now checked for case-insensitively.
+
+
 0.10    2009-03-09
 
 - For Pg and mysql, we not just query the dbms to get the current
