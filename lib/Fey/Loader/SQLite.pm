@@ -3,6 +3,8 @@ package Fey::Loader::SQLite;
 use strict;
 use warnings;
 
+our $VERSION = '0.10';
+
 use Moose;
 
 extends 'Fey::Loader::DBI';

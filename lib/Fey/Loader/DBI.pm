@@ -3,6 +3,8 @@ package Fey::Loader::DBI;
 use strict;
 use warnings;
 
+our $VERSION = '0.10';
+
 use Moose;
 use MooseX::Params::Validate qw( validated_hash );
 
