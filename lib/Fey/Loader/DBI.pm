@@ -8,42 +8,42 @@ our $VERSION = '0.11';
 use Moose;
 use MooseX::Params::Validate qw( validated_hash );
 
-has 'dbh' =>
-    ( is       => 'ro',
-      isa      => 'DBI::db',
-      required => 1,
-    );
+has 'dbh' => (
+    is       => 'ro',
+    isa      => 'DBI::db',
+    required => 1,
+);
 
-has 'schema_class' =>
-    ( is       => 'ro',
-      isa      => 'ClassName',
-      default  => 'Fey::Schema',
-    );
+has 'schema_class' => (
+    is      => 'ro',
+    isa     => 'ClassName',
+    default => 'Fey::Schema',
+);
 
-has 'table_class' =>
-    ( is       => 'ro',
-      isa      => 'ClassName',
-      default  => 'Fey::Table',
-    );
+has 'table_class' => (
+    is      => 'ro',
+    isa     => 'ClassName',
+    default => 'Fey::Table',
+);
 
-has 'column_class' =>
-    ( is       => 'ro',
-      isa      => 'ClassName',
-      default  => 'Fey::Column',
-    );
+has 'column_class' => (
+    is      => 'ro',
+    isa     => 'ClassName',
+    default => 'Fey::Column',
+);
 
-has 'fk_class' =>
-    ( is       => 'ro',
-      isa      => 'ClassName',
-      default  => 'Fey::FK',
-    );
+has 'fk_class' => (
+    is      => 'ro',
+    isa     => 'ClassName',
+    default => 'Fey::FK',
+);
 
-has '_dbh_name' =>
-    ( is      => 'ro',
-      isa     => 'Str',
-      lazy    => 1,
-      builder => '_build_dbh_name',
-    );
+has '_dbh_name' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    builder => '_build_dbh_name',
+);
 
 use Fey::Column;
 use Fey::FK;
@@ -52,10 +52,9 @@ use Fey::Table;
 
 use Scalar::Util qw( looks_like_number );
 
-sub make_schema
-{
+sub make_schema {
     my $self = shift;
-    my %p    = validated_hash( \@_, name => { isa => 'Str', optional => 1 } );
+    my %p = validated_hash( \@_, name => { isa => 'Str', optional => 1 } );
 
     my $name = delete $p{name} || $self->_dbh_name();
 
@@ -67,8 +66,7 @@ sub make_schema
     return $schema;
 }
 
-sub _build_dbh_name
-{
+sub _build_dbh_name {
     my $self = shift;
 
     my $dsn_ish = $self->dbh()->{Name};
@@ -80,28 +78,25 @@ sub _build_dbh_name
     die "Cannot figure out the database name from the DSN - $dsn_ish\n";
 }
 
-sub _add_tables
-{
+sub _add_tables {
     my $self   = shift;
     my $schema = shift;
 
-    my $sth =
-        $self->dbh()->table_info
-            ( $self->_catalog_name(), $self->_schema_name(),
-              '%', 'TABLE,VIEW' );
+    my $sth = $self->dbh()->table_info(
+        $self->_catalog_name(), $self->_schema_name(),
+        '%',                    'TABLE,VIEW'
+    );
 
-    while ( my $table_info = $sth->fetchrow_hashref() )
-    {
+    while ( my $table_info = $sth->fetchrow_hashref() ) {
         $self->_add_table( $schema, $table_info );
     }
 }
 
-sub _catalog_name { undef }
+sub _catalog_name {undef}
 
-sub _schema_name { undef }
+sub _schema_name {undef}
 
-sub _unquote_identifier
-{
+sub _unquote_identifier {
     my $self  = shift;
     my $ident = shift;
 
@@ -113,19 +108,17 @@ sub _unquote_identifier
     return $ident;
 }
 
-sub _add_table
-{
+sub _add_table {
     my $self       = shift;
     my $schema     = shift;
     my $table_info = shift;
 
     my $name = $self->_unquote_identifier( $table_info->{TABLE_NAME} );
 
-    my $table =
-        $self->table_class()->new
-            ( name    => $name,
-              is_view => $self->_is_view($table_info),
-            );
+    my $table = $self->table_class()->new(
+        name    => $name,
+        is_view => $self->_is_view($table_info),
+    );
 
     $self->_add_columns($table);
     $self->_set_primary_key($table);
@@ -136,21 +129,18 @@ sub _add_table
 
 sub _is_view { $_[1]->{TABLE_TYPE} eq 'VIEW' ? 1 : 0 }
 
-sub _add_columns
-{
+sub _add_columns {
     my $self  = shift;
     my $table = shift;
 
-    my $sth =
-        $self->dbh()->column_info
-            ( $self->_catalog_name(),
-              $self->_schema_name(),
-              $table->name(),
-              '%'
-            );
+    my $sth = $self->dbh()->column_info(
+        $self->_catalog_name(),
+        $self->_schema_name(),
+        $table->name(),
+        '%'
+    );
 
-    while ( my $col_info = $sth->fetchrow_hashref() )
-    {
+    while ( my $col_info = $sth->fetchrow_hashref() ) {
         my %col = $self->_column_params( $table, $col_info );
 
         my $col = $self->column_class()->new(%col);
@@ -159,19 +149,20 @@ sub _add_columns
     }
 }
 
-sub _column_params
-{
+sub _column_params {
     my $self     = shift;
     my $table    = shift;
     my $col_info = shift;
 
     my $name = $self->_unquote_identifier( $col_info->{COLUMN_NAME} );
 
-    my %col = ( name         => $name,
-                type         => $col_info->{TYPE_NAME},
-                # NULLABLE could be 2, which indicates unknown
-                is_nullable  => ( $col_info->{NULLABLE} == 1 ? 1 : 0 ),
-              );
+    my %col = (
+        name => $name,
+        type => $col_info->{TYPE_NAME},
+
+        # NULLABLE could be 2, which indicates unknown
+        is_nullable => ( $col_info->{NULLABLE} == 1 ? 1 : 0 ),
+    );
 
     $col{length} = $col_info->{COLUMN_SIZE}
         if defined $col_info->{COLUMN_SIZE};
@@ -179,8 +170,7 @@ sub _column_params
     $col{precision} = $col_info->{DECIMAL_DIGITS}
         if defined $col_info->{DECIMAL_DIGITS};
 
-    if ( defined $col_info->{COLUMN_DEF} )
-    {
+    if ( defined $col_info->{COLUMN_DEF} ) {
         my $default = $self->_default( $col_info->{COLUMN_DEF}, $col_info );
         $col{default} = $default
             if defined $default;
@@ -191,58 +181,50 @@ sub _column_params
     return %col;
 }
 
-sub _default
-{
+sub _default {
     my $self    = shift;
     my $default = shift;
 
-    if ( $default =~ /^NULL$/i )
-    {
+    if ( $default =~ /^NULL$/i ) {
         return Fey::Literal::Null->new();
     }
-    elsif ( $default =~ s/^(["'])(.*)\1$/$2/ )
-    {
+    elsif ( $default =~ s/^(["'])(.*)\1$/$2/ ) {
         my $quote = $1;
         $default =~ s/\Q$quote$quote/$quote/g;
 
         return Fey::Literal::String->new($default);
     }
-    elsif ( looks_like_number($default) )
-    {
+    elsif ( looks_like_number($default) ) {
         return Fey::Literal::Number->new($default);
     }
-    else
-    {
+    else {
         return Fey::Literal::Term->new($default);
     }
 }
 
-sub _is_auto_increment
-{
+sub _is_auto_increment {
     return 0;
 }
 
-sub _set_primary_key
-{
+sub _set_primary_key {
     my $self  = shift;
     my $table = shift;
 
-    my $pk_info =
-        $self->dbh()->primary_key_info
-            ( $self->_catalog_name(),
-              $self->_schema_name(),
-              $table->name()
-            );
+    my $pk_info = $self->dbh()->primary_key_info(
+        $self->_catalog_name(),
+        $self->_schema_name(),
+        $table->name()
+    );
 
     return unless $pk_info;
 
     my %pk;
-    while ( my $pk_col = $pk_info->fetchrow_hashref() )
-    {
+    while ( my $pk_col = $pk_info->fetchrow_hashref() ) {
+
         # KEY_SEQ refers to the "position" of the column in the table,
         # not in the key, and so may start at any random number.
-        $pk{ $pk_col->{KEY_SEQ} } =
-            $self->_unquote_identifier( $pk_col->{COLUMN_NAME} );
+        $pk{ $pk_col->{KEY_SEQ} }
+            = $self->_unquote_identifier( $pk_col->{COLUMN_NAME} );
     }
 
     my @pk = @pk{ sort keys %pk };
@@ -251,79 +233,72 @@ sub _set_primary_key
         if @pk;
 }
 
-sub _set_other_keys
-{
+sub _set_other_keys {
     my $self  = shift;
     my $table = shift;
 
-    my $key_info =
-        $self->dbh()->statistics_info
-            ( $self->_catalog_name(),
-              $self->_schema_name(),
-              $table->name(),
-              'unique only',
-              'quick'
-            );
+    my $key_info = $self->dbh()->statistics_info(
+        $self->_catalog_name(),
+        $self->_schema_name(),
+        $table->name(),
+        'unique only',
+        'quick'
+    );
 
     return unless $key_info;
 
     my %ck;
-    while ( my $ck_col = $key_info->fetchrow_hashref() )
-    {
+    while ( my $ck_col = $key_info->fetchrow_hashref() ) {
         $ck{ $ck_col->{INDEX_NAME} } ||= [];
 
-        $ck{ $ck_col->{INDEX_NAME} }[ $ck_col->{ORDINAL_POSITION} - 1 ] =
-            $self->_unquote_identifier( $ck_col->{COLUMN_NAME} );
+        $ck{ $ck_col->{INDEX_NAME} }[ $ck_col->{ORDINAL_POSITION} - 1 ]
+            = $self->_unquote_identifier( $ck_col->{COLUMN_NAME} );
     }
 
-    for my $key ( values %ck )
-    {
+    for my $key ( values %ck ) {
+
         # The defined check is another Pg workaround. ORDINAL_POSITION
         # ends up sequential across all keys, which is wack.
-        $table->add_candidate_key( grep { defined } @{ $key } );
+        $table->add_candidate_key( grep {defined} @{$key} );
     }
 }
 
-sub _add_foreign_keys
-{
+sub _add_foreign_keys {
     my $self   = shift;
     my $schema = shift;
 
-    my @keys = qw( UK_TABLE_NAME UK_COLUMN_NAME FK_TABLE_NAME FK_COLUMN_NAME );
+    my @keys
+        = qw( UK_TABLE_NAME UK_COLUMN_NAME FK_TABLE_NAME FK_COLUMN_NAME );
 
-    for my $table ( $schema->tables() )
-    {
+    for my $table ( $schema->tables() ) {
         my $sth = $self->_fk_info_sth( $table->name() );
 
         next unless $sth;
 
         my %fk;
-        while ( my $fk_info = $sth->fetchrow_hashref() )
-        {
+        while ( my $fk_info = $sth->fetchrow_hashref() ) {
             $self->_translate_fk_info($fk_info);
 
-            for my $k (@keys)
-            {
+            for my $k (@keys) {
                 $fk_info->{$k} = $self->_unquote_identifier( $fk_info->{$k} )
                     if defined $fk_info->{$k};
             }
 
             # The FK_NAME might not be unique (two tables can use the
             # same FK name).
-            my $key =
-                join q{-}, @{ $fk_info }{ qw( FK_NAME FK_TABLE_NAME UK_TABLE_NAME ) };
+            my $key = join q{-},
+                @{$fk_info}{qw( FK_NAME FK_TABLE_NAME UK_TABLE_NAME )};
 
             push @{ $fk{$key}{source_columns} },
                 $schema->table( $fk_info->{FK_TABLE_NAME} )
-                       ->column( $fk_info->{FK_COLUMN_NAME} );
+                ->column( $fk_info->{FK_COLUMN_NAME} );
 
             push @{ $fk{$key}{target_columns} },
                 $schema->table( $fk_info->{UK_TABLE_NAME} )
-                        ->column( $fk_info->{UK_COLUMN_NAME} );
+                ->column( $fk_info->{UK_COLUMN_NAME} );
         }
 
-        for my $fk_cols ( values %fk )
-        {
+        for my $fk_cols ( values %fk ) {
             my $fk = $self->fk_class()->new( %{$fk_cols} );
 
             $schema->add_foreign_key($fk);
@@ -332,41 +307,38 @@ sub _add_foreign_keys
 }
 
 {
-    my %ODBCToSQL =
-        ( PKTABLE_NAME  => 'UK_TABLE_NAME',
-          PKCOLUMN_NAME => 'UK_COLUMN_NAME',
-          FKTABLE_NAME  => 'FK_TABLE_NAME',
-          FKCOLUMN_NAME => 'FK_COLUMN_NAME',
-          KEY_SEQ       => 'ORDINAL_POSITION',
-        );
-    sub _translate_fk_info
-    {
+    my %ODBCToSQL = (
+        PKTABLE_NAME  => 'UK_TABLE_NAME',
+        PKCOLUMN_NAME => 'UK_COLUMN_NAME',
+        FKTABLE_NAME  => 'FK_TABLE_NAME',
+        FKCOLUMN_NAME => 'FK_COLUMN_NAME',
+        KEY_SEQ       => 'ORDINAL_POSITION',
+    );
+
+    sub _translate_fk_info {
         my $self = shift;
         my $info = shift;
 
         return if $info->{UK_TABLE_NAME};
 
-        while ( my ( $from, $to ) = each %ODBCToSQL )
-        {
+        while ( my ( $from, $to ) = each %ODBCToSQL ) {
             $info->{$to} = delete $info->{$from};
         }
     }
 }
 
-sub _fk_info_sth
-{
+sub _fk_info_sth {
     my $self = shift;
     my $name = shift;
 
-    return
-        $self->dbh()->foreign_key_info
-            ( $self->_catalog_name,
-              $self->_schema_name,
-              $name,
-              $self->_catalog_name,
-              $self->_schema_name,
-              undef,
-            );
+    return $self->dbh()->foreign_key_info(
+        $self->_catalog_name,
+        $self->_schema_name,
+        $name,
+        $self->_catalog_name,
+        $self->_schema_name,
+        undef,
+    );
 }
 
 no Moose;

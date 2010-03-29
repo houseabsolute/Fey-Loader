@@ -11,8 +11,10 @@ use Fey::Loader;
     local $SIG{__WARN__} = sub { $warnings .= $_ for @_ };
 
     my $loader = Fey::Loader->new( dbh => Fey::Test->mock_dbh() );
-    like( $warnings, qr/no driver-specific Fey::Loader subclass/,
-          'warning was emitted when we could not find a driver-specific load subclass' );
+    like(
+        $warnings, qr/no driver-specific Fey::Loader subclass/,
+        'warning was emitted when we could not find a driver-specific load subclass'
+    );
 
     isa_ok( $loader, 'Fey::Loader::DBI' );
 }

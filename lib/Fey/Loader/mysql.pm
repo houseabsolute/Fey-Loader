@@ -14,85 +14,82 @@ use DBD::mysql 4.004;
 use Fey::Literal;
 use Scalar::Util qw( looks_like_number );
 
-package # hide from PAUSE
+package    # hide from PAUSE
     DBD::mysql::Fixup;
 
-BEGIN
-{
-    unless ( defined &DBD::mysql::db::statistics_info )
-    {
+BEGIN {
+    unless ( defined &DBD::mysql::db::statistics_info ) {
         *DBD::mysql::db::statistics_info = \&_statistics_info;
     }
 }
 
 sub _statistics_info {
-  my ($dbh, $catalog, $schema, $table, $unique_only) = @_;
-  $dbh->{mysql_server_prepare}||= 0;
-  my $mysql_server_prepare_save= $dbh->{mysql_server_prepare};
+    my ( $dbh, $catalog, $schema, $table, $unique_only ) = @_;
+    $dbh->{mysql_server_prepare} ||= 0;
+    my $mysql_server_prepare_save = $dbh->{mysql_server_prepare};
 
-  my $table_id = $dbh->quote_identifier($catalog, $schema, $table);
+    my $table_id = $dbh->quote_identifier( $catalog, $schema, $table );
 
-  my @names = qw(
-      TABLE_CAT TABLE_SCHEM TABLE_NAME NON_UNIQUE INDEX_QUALIFIER
-      INDEX_NAME TYPE ORDINAL_POSITION COLUMN_NAME COLLATION
-      CARDINALITY PAGES FILTER_CONDITION
-      );
-  my %index_info;
+    my @names = qw(
+        TABLE_CAT TABLE_SCHEM TABLE_NAME NON_UNIQUE INDEX_QUALIFIER
+        INDEX_NAME TYPE ORDINAL_POSITION COLUMN_NAME COLLATION
+        CARDINALITY PAGES FILTER_CONDITION
+    );
+    my %index_info;
 
-  local $dbh->{FetchHashKeyName} = 'NAME_lc';
-  my $desc_sth = $dbh->prepare("SHOW KEYS FROM $table_id");
-  my $desc= $dbh->selectall_arrayref($desc_sth, { Columns=>{} });
-  my $ordinal_pos = 0;
+    local $dbh->{FetchHashKeyName} = 'NAME_lc';
+    my $desc_sth = $dbh->prepare("SHOW KEYS FROM $table_id");
+    my $desc = $dbh->selectall_arrayref( $desc_sth, { Columns => {} } );
+    my $ordinal_pos = 0;
 
-  for my $row (grep { $_->{key_name} ne 'PRIMARY'} @$desc)
-  {
-    next if $unique_only && $row->{non_unique};
+    for my $row ( grep { $_->{key_name} ne 'PRIMARY' } @$desc ) {
+        next if $unique_only && $row->{non_unique};
 
-    $index_info{ $row->{key_name} } = {
-      TABLE_CAT        => $catalog,
-      TABLE_SCHEM      => $schema,
-      TABLE_NAME       => $table,
-      NON_UNIQUE       => $row->{non_unique},
-      INDEX_NAME       => $row->{key_name},
-      TYPE             => lc $row->{index_type},
-      ORDINAL_POSITION => $row->{seq_in_index},
-      COLUMN_NAME      => $row->{column_name},
-      COLLATION        => $row->{collation},
-      CARDINALITY      => $row->{cardinality},
-      mysql_nullable   => ( $row->{nullable} ? 1 : 0 ),
-      mysql_comment    => $row->{comment},
-    };
-  }
+        $index_info{ $row->{key_name} } = {
+            TABLE_CAT        => $catalog,
+            TABLE_SCHEM      => $schema,
+            TABLE_NAME       => $table,
+            NON_UNIQUE       => $row->{non_unique},
+            INDEX_NAME       => $row->{key_name},
+            TYPE             => lc $row->{index_type},
+            ORDINAL_POSITION => $row->{seq_in_index},
+            COLUMN_NAME      => $row->{column_name},
+            COLLATION        => $row->{collation},
+            CARDINALITY      => $row->{cardinality},
+            mysql_nullable   => ( $row->{nullable} ? 1 : 0 ),
+            mysql_comment    => $row->{comment},
+        };
+    }
 
-  my $sponge = DBI->connect("DBI:Sponge:", '','')
-    or 
-     ($dbh->{mysql_server_prepare}= $mysql_server_prepare_save &&
-      return $dbh->DBI::set_err($DBI::err, "DBI::Sponge: $DBI::errstr"));
+    my $sponge = DBI->connect( "DBI:Sponge:", '', '' )
+        or ( $dbh->{mysql_server_prepare} = $mysql_server_prepare_save
+        && return $dbh->DBI::set_err( $DBI::err, "DBI::Sponge: $DBI::errstr" )
+        );
 
-  my $sth= $sponge->prepare("statistics_info $table", {
-      rows          => [ map { [ @{$_}{@names} ] } values %index_info ],
-      NUM_OF_FIELDS => scalar @names,
-      NAME          => \@names,
-      }) or 
-       ($dbh->{mysql_server_prepare}= $mysql_server_prepare_save &&
-        return $dbh->DBI::set_err($sponge->err(), $sponge->errstr()));
+    my $sth = $sponge->prepare(
+        "statistics_info $table", {
+            rows => [ map { [ @{$_}{@names} ] } values %index_info ],
+            NUM_OF_FIELDS => scalar @names,
+            NAME          => \@names,
+        }
+        )
+        or ( $dbh->{mysql_server_prepare} = $mysql_server_prepare_save
+        && return $dbh->DBI::set_err( $sponge->err(), $sponge->errstr() ) );
 
-  $dbh->{mysql_server_prepare}= $mysql_server_prepare_save;
+    $dbh->{mysql_server_prepare} = $mysql_server_prepare_save;
 
-  return $sth;
+    return $sth;
 }
 
 package Fey::Loader::mysql;
 
-sub _build_dbh_name
-{
+sub _build_dbh_name {
     my $self = shift;
 
     return $self->dbh()->selectrow_arrayref('SELECT DATABASE()')->[0];
 }
 
-sub _column_params
-{
+sub _column_params {
     my $self     = shift;
     my $table    = shift;
     my $col_info = shift;
@@ -107,27 +104,26 @@ sub _column_params
     # impossible to distinguish between a length specified by the user
     # and one specified by DBD::mysql.
     delete $col{length}
-        if (    $col{type} =~ /(?:text|blob)$/i
-             || $col{type} =~ /^(?:float|double)/i
-             || $col{type} =~ /^(?:enum|set)/i
-             || (    $col{type} =~ /^(?:date|time)/i
-                  && lc $col{type} ne 'timestamp' )
-           );
+        if (
+           $col{type} =~ /(?:text|blob)$/i
+        || $col{type} =~ /^(?:float|double)/i
+        || $col{type} =~ /^(?:enum|set)/i
+        || ( $col{type} =~ /^(?:date|time)/i
+            && lc $col{type} ne 'timestamp' )
+        );
 
     delete $col{precision}
         if $col{type} =~ /date|time/o;
 
     delete $col{default}
-        if (    exists $col{default}
-             && $col_info->{COLUMN_DEF} eq ''
-             && $col_info->{TYPE_NAME} =~ /int|float|double/i
-           );
+        if ( exists $col{default}
+        && $col_info->{COLUMN_DEF} eq ''
+        && $col_info->{TYPE_NAME} =~ /int|float|double/i );
 
     return %col;
 }
 
-sub _is_auto_increment
-{
+sub _is_auto_increment {
     my $self     = shift;
     my $table    = shift;
     my $col_info = shift;
@@ -135,40 +131,33 @@ sub _is_auto_increment
     return $col_info->{mysql_is_auto_increment} ? 1 : 0;
 }
 
-sub _default
-{
+sub _default {
     my $self     = shift;
     my $default  = shift;
     my $col_info = shift;
 
-    if ( $default =~ /^NULL$/i )
-    {
+    if ( $default =~ /^NULL$/i ) {
         return Fey::Literal::Null->new();
     }
-    elsif ( $default =~ /^CURRENT_TIMESTAMP$/i )
-    {
+    elsif ( $default =~ /^CURRENT_TIMESTAMP$/i ) {
         return Fey::Literal::Term->new($default);
     }
-    elsif ( looks_like_number($default) )
-    {
+    elsif ( looks_like_number($default) ) {
         return Fey::Literal::Number->new($default);
     }
-    else
-    {
+    else {
         return Fey::Literal::String->new($default);
     }
 }
 
-sub _fk_info_sth
-{
+sub _fk_info_sth {
     my $self = shift;
     my $name = shift;
 
-    return
-        $self->dbh()->foreign_key_info
-            ( undef, $self->_dbh_name(), $name,
-              undef, undef, undef,
-            );
+    return $self->dbh()->foreign_key_info(
+        undef, $self->_dbh_name(), $name,
+        undef, undef,              undef,
+    );
 }
 
 no Moose;

@@ -7,13 +7,11 @@ our $VERSION = '0.11';
 
 use Fey::Loader::DBI;
 
-
-sub new
-{
+sub new {
     my $class = shift;
     my %p     = @_;
 
-    my $dbh = $p{dbh};
+    my $dbh    = $p{dbh};
     my $driver = $dbh->{Driver}{Name};
 
     my $subclass = $class->_determine_subclass($driver);
@@ -21,14 +19,14 @@ sub new
     return $subclass->new(%p);
 }
 
-sub _determine_subclass
-{
-    my $class = shift;
+sub _determine_subclass {
+    my $class  = shift;
     my $driver = shift;
 
     my $subclass = $class . '::' . $driver;
 
     {
+
         # Shuts up UNIVERSAL::can
         no warnings;
         return $subclass if $subclass->can('new');
