@@ -5,7 +5,7 @@ use Fey::Test;
 use Fey::Test::Loader;
 use Fey::Test::mysql;
 
-use Test::More tests => 156;
+use Test::More;
 
 use Fey::Literal;
 use Fey::Loader;
@@ -85,3 +85,5 @@ use Fey::Loader;
     my $def = Fey::Loader::mysql->_default('NULL');
     isa_ok( $def, 'Fey::Literal::Null' );
 }
+
+done_testing();

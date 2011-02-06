@@ -5,7 +5,7 @@ use Fey::Test;
 use Fey::Test::Loader;
 use Fey::Test::SQLite;
 
-use Test::More tests => 146;
+use Test::More;
 
 use Fey::Loader;
 
@@ -51,3 +51,5 @@ use Fey::Loader;
         'unquoted CURRENT_TIME as default becomes CURRENT_TIME as term'
     );
 }
+
+done_testing();

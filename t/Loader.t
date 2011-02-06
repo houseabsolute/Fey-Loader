@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 use Fey::Test;
-use Test::More tests => 4;
+use Test::More;
 
 use Fey::Loader;
 
@@ -36,3 +36,4 @@ SKIP:
     isa_ok( $loader, 'Fey::Loader::SQLite' );
 }
 
+done_testing();

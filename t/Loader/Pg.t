@@ -5,7 +5,7 @@ use Fey::Test;
 use Fey::Test::Loader;
 use Fey::Test::Pg;
 
-use Test::More tests => 156;
+use Test::More;
 
 use Fey::Loader;
 
@@ -40,3 +40,5 @@ use Fey::Loader;
     my $def = Fey::Loader::Pg->_default('NULL');
     isa_ok( $def, 'Fey::Literal::Null' );
 }
+
+done_testing();

@@ -4,7 +4,7 @@ use warnings;
 use Fey::Test;
 use Fey::Test::Loader;
 
-use Test::More tests => 191;
+use Test::More;
 
 use Fey::Loader;
 
@@ -147,3 +147,5 @@ sub new_loader {
         'parsed database name from DSN'
     );
 }
+
+done_testing();
