@@ -22,5 +22,7 @@ __DATA__
 dbh
 DBI
 distros
+PayPal
+Rolsky
 schemas
 SQLite

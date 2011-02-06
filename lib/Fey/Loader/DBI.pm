@@ -3,7 +3,6 @@ package Fey::Loader::DBI;
 use strict;
 use warnings;
 
-our $VERSION = '0.11';
 
 use Moose;
 use MooseX::Params::Validate qw( validated_hash );
@@ -346,11 +345,9 @@ __PACKAGE__->meta()->make_immutable();
 
 1;
 
+# ABSTRACT: Base class (and fallback) for loading a schema
+
 __END__
-
-=head1 NAME
-
-Fey::Loader::DBI - Base class (and fallback) for loading a schema
 
 =head1 SYNOPSIS
 
@@ -391,22 +388,11 @@ name parameter is optional, and if given will be used as the name of
 the new schema. Otherwise the name will be found through the C<DBI>
 handle.
 
-=head1 AUTHOR
-
-Dave Rolsky, <autarch@urth.org>
-
 =head1 BUGS
 
 Please report any bugs or feature requests to
 C<bug-fey-loader@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2006-2008 Dave Rolsky, All Rights Reserved.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
 
 =cut
