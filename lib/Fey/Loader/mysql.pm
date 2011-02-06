@@ -150,14 +150,48 @@ sub _default {
     }
 }
 
-sub _fk_info_sth {
-    my $self = shift;
-    my $name = shift;
+{
+    my $quoted_name = qr/["`](.*?)["`]/;
+    my $fk = qr/CONSTRAINT $quoted_name FOREIGN KEY \($quoted_name\) REFERENCES $quoted_name \($quoted_name\)/;
 
-    return $self->dbh()->foreign_key_info(
-        undef, $self->_dbh_name(), $name,
-        undef, undef,              undef,
-    );
+    sub _fk_info_sth {
+        my $self = shift;
+        my $name = shift;
+
+        my ( $pk_tbl, $ddl ) = eval {
+            $self->dbh()->selectrow_array("SHOW CREATE TABLE `$name`");
+        };
+
+        return unless defined $ddl;
+
+        my @fk_info;
+
+        while ( $ddl =~ /$fk/g ) {
+            my $fk_name = $1;
+            my $pk_cols = $2;
+            my $fk_tbl  = $3;
+            my $fk_cols = $4;
+
+            my @pk_col = split /\s*,\s*/, $pk_cols;
+            my @fk_col = split /\s*,\s*/, $fk_cols;
+
+            push @fk_info,
+                [ $fk_tbl, $fk_col[$_], $pk_tbl, $pk_col[$_], $fk_name ]
+                for 0 .. $#pk_col;
+        }
+
+        return unless @fk_info;
+
+        return DBI->connect( 'dbi:Sponge:', '', '', { RaiseError => 1 } )
+            ->prepare(
+            "foreign_key_info $name", {
+                NAME => [
+                    qw( PKTABLE_NAME PKCOLUMN_NAME FKTABLE_NAME FKCOLUMN_NAME FK_NAME )
+                ],
+                rows => \@fk_info,
+            }
+            );
+    }
 }
 
 no Moose;
