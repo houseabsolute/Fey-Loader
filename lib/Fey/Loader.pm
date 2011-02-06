@@ -55,10 +55,11 @@ __END__
 
   my $loader = Fey::Loader->new( dbh => $dbh );
 
-  my $loader = Fey::Loader->new( dbh          => $dbh,
-                                 schema_class => '...',
-                                 table_class  => '...',
-                               );
+  my $loader = Fey::Loader->new(
+      dbh          => $dbh,
+      schema_class => '...',
+      table_class  => '...',
+  );
 
   my $schema = $loader->make_schema();
 
