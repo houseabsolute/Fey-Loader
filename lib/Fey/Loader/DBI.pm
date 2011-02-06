@@ -1,10 +1,9 @@
 package Fey::Loader::DBI;
 
-use strict;
-use warnings;
-
-
 use Moose;
+
+use namespace::autoclean;
+
 use MooseX::Params::Validate qw( validated_hash );
 
 has 'dbh' => (
@@ -340,7 +339,6 @@ sub _fk_info_sth {
     );
 }
 
-no Moose;
 __PACKAGE__->meta()->make_immutable();
 
 1;

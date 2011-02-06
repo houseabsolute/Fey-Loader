@@ -3,7 +3,6 @@ package Fey::Loader;
 use strict;
 use warnings;
 
-
 use Fey::Loader::DBI;
 
 sub new {

@@ -1,16 +1,14 @@
 package Fey::Loader::Pg;
 
-use strict;
-use warnings;
-
-
 use Moose;
 
-extends 'Fey::Loader::DBI';
+use namespace::autoclean;
 
 use DBD::Pg 2.0;
 use Fey::Literal;
 use Scalar::Util qw( looks_like_number );
+
+extends 'Fey::Loader::DBI';
 
 sub _build_dbh_name {
     my $self = shift;
@@ -72,7 +70,6 @@ sub _default {
     }
 }
 
-no Moose;
 __PACKAGE__->meta()->make_immutable();
 
 1;

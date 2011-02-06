@@ -1,17 +1,15 @@
 package Fey::Loader::mysql;
 
-use strict;
-use warnings;
-
-
 use Moose;
 
-extends 'Fey::Loader::DBI';
+use namespace::autoclean;
 
 use DBD::mysql 4.004;
 
 use Fey::Literal;
 use Scalar::Util qw( looks_like_number );
+
+extends 'Fey::Loader::DBI';
 
 package    # hide from PAUSE
     DBD::mysql::Fixup;
@@ -193,7 +191,6 @@ sub _default {
     }
 }
 
-no Moose;
 __PACKAGE__->meta()->make_immutable();
 
 1;

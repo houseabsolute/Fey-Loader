@@ -1,14 +1,12 @@
 package Fey::Loader::SQLite;
 
-use strict;
-use warnings;
-
-
 use Moose;
 
-extends 'Fey::Loader::DBI';
+use namespace::autoclean;
 
 use DBD::SQLite 1.20;
+
+extends 'Fey::Loader::DBI';
 
 package    # hide from PAUSE
     DBD::SQLite::Fixup;
@@ -139,7 +137,6 @@ sub _default {
     }
 }
 
-no Moose;
 __PACKAGE__->meta()->make_immutable();
 
 1;
