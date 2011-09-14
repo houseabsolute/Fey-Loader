@@ -1,3 +1,9 @@
+{{$NEXT}}
+
+- Make the DBD::mysql statistics_info monkey patch work again. Reported by
+  keedi.
+
+
 0.12    2010-02-06
 
 - The DBD::mysql foreign_key_info method is _very_ slow. Instead of using
