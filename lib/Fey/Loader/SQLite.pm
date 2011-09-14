@@ -12,10 +12,6 @@ package    # hide from PAUSE
     DBD::SQLite::Fixup;
 
 BEGIN {
-    unless ( defined &DBD::SQLite::db::column_info ) {
-        *DBD::SQLite::db::column_info = \&_sqlite_column_info;
-    }
-
     unless ( defined &DBD::SQLite::db::statistics_info ) {
         *DBD::SQLite::db::statistics_info = \&_sqlite_statistics_info;
     }
