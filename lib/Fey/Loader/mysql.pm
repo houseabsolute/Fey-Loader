@@ -28,6 +28,7 @@ BEGIN {
 
         # The broken implementation is just a few lines. If this ever gets
         # implemented for real it will have to be longer.
+        no warnings 'redefine';
         *DBD::mysql::db::statistics_info = \&_statistics_info
             if @lines < 10;
     }
