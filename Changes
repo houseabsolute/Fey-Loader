@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.13    2011-09-14
+
 - Make the DBD::mysql statistics_info monkey patch work again. Reported by
   keedi.
 
