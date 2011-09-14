@@ -15,13 +15,31 @@ package    # hide from PAUSE
     DBD::mysql::Fixup;
 
 BEGIN {
-    unless ( defined &DBD::mysql::db::statistics_info ) {
-        *DBD::mysql::db::statistics_info = \&_statistics_info;
+    use B::Deparse;
+
+    # XXX - hack of epic proportions - DBD::mysql::DB defined a totally broken
+    # statistics_info that attempts to call SUPER::statistics_info
+    # internally. The method doesn't exist in the parent class so it
+    # explodes. However, since this broken method is in place, we can't just
+    # check to see if the method exists before monkey patching.
+    my $meth = DBD::mysql::db->can('statistics_info');
+    if ( $meth ) {
+        my @lines = split /[\r\n]+/, B::Deparse->new()->coderef2text($meth);
+
+        # The broken implementation is just a few lines. If this ever gets
+        # implemented for real it will have to be longer.
+        *DBD::mysql::db::statistics_info = \&_statistics_info
+            if @lines < 10;
     }
 }
 
 sub _statistics_info {
     my ( $dbh, $catalog, $schema, $table, $unique_only ) = @_;
+
+    if ( DBD::mysql->VERSION >= 4.018 ) {
+        return unless $dbh->func('_async_check');
+    }
+
     $dbh->{mysql_server_prepare} ||= 0;
     my $mysql_server_prepare_save = $dbh->{mysql_server_prepare};
 
