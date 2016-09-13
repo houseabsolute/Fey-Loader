@@ -82,7 +82,7 @@ sub _add_tables {
 
     my $sth = $self->dbh()->table_info(
         $self->_catalog_name(), $self->_schema_name(),
-        '%',                    'TABLE,VIEW'
+        '%',                    'TABLE,VIEW,MATERIALIZED VIEW'
     );
 
     while ( my $table_info = $sth->fetchrow_hashref() ) {
@@ -125,7 +125,7 @@ sub _add_table {
     $schema->add_table($table);
 }
 
-sub _is_view { $_[1]->{TABLE_TYPE} eq 'VIEW' ? 1 : 0 }
+sub _is_view { $_[1]->{TABLE_TYPE} =~ /VIEW/ ? 1 : 0 }
 
 sub _add_columns {
     my $self  = shift;
